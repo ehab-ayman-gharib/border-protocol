@@ -1,0 +1,42 @@
+import { Radio, MapPin, Clock3 } from "lucide-react";
+import type { EntrantApplicant } from "@/types/border";
+import { Portrait } from "./Portrait";
+export function BoothHeader({
+  entrant,
+  index,
+}: {
+  entrant: EntrantApplicant;
+  index: number;
+}) {
+  return (
+    <section className="booth" aria-label="Checkpoint window">
+      <div className="booth-location">
+        <MapPin size={13} />
+        <span>EAST GRESTIN · SECTOR 04</span>
+        <span className="live-dot" /> BORDER OPEN
+      </div>
+      <div className="scene-caption">
+        <span className="eyebrow">THE ARSTOVIAN REPUBLIC</span>
+        <p>Vigilance is our duty.</p>
+      </div>
+      <div className="window-portrait">
+        <Portrait index={entrant.portrait} />
+        <div className="window-name">
+          <span>APPLICANT 0{index + 1}</span>
+          <strong>{entrant.bio.fullName}</strong>
+        </div>
+      </div>
+      <div className="window-speech">
+        <span>
+          <Radio size={13} /> INTERCOM · CONNECTED
+        </span>
+        <p>“Papers, please.”</p>
+        <small>Documents received. Begin inspection.</small>
+      </div>
+      <div className="booth-time">
+        <Clock3 size={13} /> 08:{String(index * 12).padStart(2, "0")}{" "}
+        <span>12°C / OVERCAST</span>
+      </div>
+    </section>
+  );
+}
