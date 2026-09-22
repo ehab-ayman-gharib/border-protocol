@@ -5,6 +5,10 @@ export const COHERENCE = [
   "consistent",
 ] as const;
 export interface JevBorderResponse {
+  declaration_accuracy: {
+    choice: "supported" | "contradicted" | "unverified";
+    confidence: number;
+  };
   story_coherence: { score: (typeof COHERENCE)[number]; value: number };
   smuggling_risk: { probability: number };
   semantic_assessment: {

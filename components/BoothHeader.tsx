@@ -20,7 +20,7 @@ export function BoothHeader({
         <p>Vigilance is our duty.</p>
       </div>
       <div className="window-portrait">
-        <Portrait index={entrant.portrait} />
+        <Portrait key={entrant.id} index={entrant.portrait} animated />
         <div className="window-name">
           <span>APPLICANT 0{index + 1}</span>
           <strong>{entrant.bio.fullName}</strong>
@@ -28,9 +28,9 @@ export function BoothHeader({
       </div>
       <div className="window-speech">
         <span>
-          <Radio size={13} /> INTERCOM · CONNECTED
+          <Radio size={13} /> {entrant.bio.fullName}
         </span>
-        <p>“Papers, please.”</p>
+        <p>“Here are my papers.”</p>
         <small>Documents received. Begin inspection.</small>
       </div>
       <div className="booth-time">

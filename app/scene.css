@@ -1,0 +1,1416 @@
+/* Scene treatment: cold checkpoint light, warm workbench, tactile papers. */
+.document-picker {
+  display: none;
+}
+:root {
+  --bg: #171b21;
+  --panel: #20252b;
+  --line: #44474b;
+  --text: #e9e3d7;
+  --muted: #a4aaa9;
+  --gold: #e1b77b;
+  --paper: #e9dfc6;
+}
+body {
+  background: #0d1117;
+}
+.game-shell {
+  max-width: 1600px;
+  background: #171b21;
+  box-shadow: 0 0 100px #0008;
+}
+.game-stage {
+  min-height: 100svh;
+}
+.topbar {
+  height: 66px;
+  padding: 0 32px;
+  background: #171c23;
+  border-bottom: 1px solid #ffffff0b;
+}
+.wordmark {
+  font-size: 17px;
+  letter-spacing: 2px;
+  gap: 11px;
+}
+.wordmark span {
+  font-size: 9px;
+  letter-spacing: 4.5px;
+  margin-top: 4px;
+}
+.brand-mark {
+  border: 0;
+  width: 30px;
+  height: 36px;
+  color: #e1b77b;
+}
+.topbar nav {
+  gap: 24px;
+}
+.topbar nav button {
+  color: #b9c0c3;
+  font-size: 12px;
+}
+.shiftbar {
+  min-height: 48px;
+  padding: 0 32px;
+  background: #222830;
+  border-bottom: 1px solid #5a5c582e;
+}
+.shiftbar .eyebrow {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #b1b4b2;
+}
+.shiftbar strong {
+  font:
+    20px Georgia,
+    serif;
+}
+.shift-date {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.shift-stats .muted {
+  font-size: 10px;
+}
+.shift-stats b {
+  font-size: 17px;
+}
+.booth {
+  height: 300px;
+  background-image:
+    linear-gradient(180deg, #1b263339, #18202b14 50%, #090f17c9),
+    url("/assets/checkpoint.png");
+  background-position: center 46%;
+  border-bottom: 9px solid #11161d;
+  box-shadow: inset 0 0 90px #080e1666;
+}
+.booth-location {
+  top: 20px;
+  left: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #e0e0d6;
+  font-size: 10px;
+  text-shadow: 0 2px 6px #000;
+}
+.booth-location .live-dot {
+  margin-left: 14px;
+}
+.scene-caption {
+  display: none;
+}
+.window-portrait {
+  left: 39%;
+  width: 184px;
+  height: 260px;
+  border: 1px solid #b8b2a33b;
+  box-shadow:
+    0 0 0 8px #111820b3,
+    0 8px 30px #0008;
+  bottom: 0;
+  background: #303d42;
+}
+.window-portrait .portrait {
+  filter: saturate(0.7);
+}
+.window-name {
+  padding: 28px 8px 12px;
+  background: linear-gradient(transparent, #111a23ee);
+}
+.window-name strong {
+  display: none;
+}
+.window-name span {
+  font-size: 9px;
+  color: #e8deca;
+}
+.window-speech {
+  left: 54%;
+  top: 104px;
+  min-width: 0;
+  width: 280px;
+  padding: 22px 26px;
+  border: 1px solid #939d9c55;
+  background: #16202ce6;
+  box-shadow: 0 10px 28px #0005;
+}
+.window-speech:before {
+  background: #16202c;
+  border-color: #939d9c55;
+  top: 43px;
+}
+.window-speech > span {
+  color: #b3c4c9;
+  font-size: 9px;
+}
+.window-speech p {
+  color: #faf0da;
+  font-size: 28px;
+  margin: 15px 0 0;
+}
+.window-speech small {
+  display: none;
+}
+.booth-time {
+  font-size: 10px;
+  color: #d1d8da;
+  right: 30px;
+  bottom: 18px;
+}
+.workspace {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  min-height: 430px;
+  background: #302b27;
+}
+.desk-area {
+  border-right: 0;
+  background: #302b27;
+}
+.section-heading {
+  background: transparent;
+  border: 0;
+  height: 44px;
+  color: #c9bfb1;
+  font-size: 10px;
+  padding: 0 28px;
+  letter-spacing: 1.3px;
+}
+.text-button {
+  color: #b1a698;
+  font-size: 10px;
+}
+.desk-canvas {
+  height: 390px;
+  background:
+    radial-gradient(ellipse at 40% 5%, #d3a96a13, transparent 75%),
+    repeating-linear-gradient(2deg, #0000 0 45px, #00000009 46px 48px),
+    repeating-linear-gradient(94deg, #e6c0a204 0 1px, transparent 1px 7px),
+    #302b27;
+  box-shadow: inset 0 15px 25px #0000000a;
+}
+.document {
+  box-shadow:
+    4px 10px 15px #0b090859,
+    0 1px 2px #0006;
+}
+.passport {
+  top: 25px;
+  left: 9%;
+  width: 300px;
+  background: #b2b9ad;
+  border-color: #879283;
+}
+.passport-cover {
+  height: 43px;
+  background: #3b5351;
+  color: #e1ddc3;
+  border-color: #718a7c;
+  font-size: 12px;
+}
+.passport-inner {
+  padding: 15px 17px;
+  background: repeating-linear-gradient(
+    35deg,
+    #dce8d008 0 2px,
+    transparent 2px 5px
+  );
+}
+.passport-title {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.passport-identity strong {
+  font-size: 12px;
+}
+.passport-identity b {
+  font-size: 11px;
+}
+.passport-identity {
+  gap: 12px;
+}
+.passport-photo {
+  width: 72px;
+  height: 100px;
+}
+.document label {
+  font-size: 8px;
+  opacity: 0.85;
+  letter-spacing: 0.7px;
+}
+.passport-fields {
+  margin-top: 12px;
+}
+.passport-fields b {
+  font-size: 13px;
+}
+.machine-code {
+  font-size: 9px;
+}
+.permit {
+  top: 9px;
+  left: 53%;
+  width: 290px;
+  padding: 18px 20px 9px;
+  background-color: #e9dfc6;
+  border-color: #c1b399;
+}
+.permit-header {
+  font-size: 9px;
+}
+.permit-header small {
+  font-size: 7px;
+}
+.permit h2 {
+  font-size: 23px;
+  margin-top: 12px;
+  letter-spacing: 1.2px;
+}
+.permit-number {
+  font-size: 8px;
+  margin-bottom: 14px;
+}
+.permit-row {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+.permit-row strong {
+  font-size: 19px;
+}
+.permit-row b,
+.permit-columns b {
+  font-size: 13px;
+}
+.permit-seal p {
+  font-size: 8px;
+}
+.permit-columns {
+  gap: 50px;
+}
+.inspector-panel {
+  background: #262c32;
+  margin: 18px 20px 20px 0;
+  border: 1px solid #ffffff0c;
+  border-radius: 3px;
+  box-shadow: 0 10px 20px #0002;
+}
+.inspector-panel .section-heading {
+  display: none;
+}
+.applicant-heading {
+  padding: 23px 22px 20px;
+}
+.applicant-heading h1 {
+  font:
+    27px Georgia,
+    serif;
+  color: #eee4d0;
+  margin-bottom: 10px;
+  outline: none;
+}
+.applicant-heading > span {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #adb6b7;
+  flex-wrap: wrap;
+}
+.dossier-tabs {
+  padding: 0 22px;
+  gap: 24px;
+  border-bottom: 1px solid #ffffff12;
+}
+.dossier-tabs button {
+  font-size: 12px;
+  padding: 10px 0;
+  color: #aab3b8;
+}
+.dossier-tabs button[aria-selected="true"] {
+  color: #edc794;
+  border-bottom-color: #e5b677;
+}
+.dossier-tabs button > span {
+  background: #42464a;
+  color: #e3d4bb;
+}
+.dossier-content {
+  padding: 22px;
+  min-height: 0;
+}
+.dossier-content .eyebrow {
+  color: #9da8ad;
+  font-size: 9px;
+}
+blockquote {
+  color: #ece2d1;
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 12px 0 20px;
+}
+.duration {
+  font-size: 9px;
+  color: #b3bbc0;
+}
+.duration b {
+  color: #e2d7bf;
+}
+.observation {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-color: #ffffff12;
+}
+.observation p {
+  font-size: 12px;
+  color: #bec2bd;
+  line-height: 1.7;
+}
+.luggage-list li {
+  border-color: #ffffff12;
+  padding: 15px 0;
+}
+.luggage-list b {
+  color: #e3dccc;
+  font-size: 12px;
+}
+.luggage-list svg {
+  color: #d3b88f;
+}
+.decision-bar {
+  min-height: 94px;
+  background: linear-gradient(#27272a, #1d2127);
+  border-top: 1px solid #b2916b33;
+  padding: 16px 30px;
+}
+.decision-caption .eyebrow {
+  font-size: 10px;
+  color: #cab594;
+  letter-spacing: 1px;
+}
+.decision-caption p {
+  color: #b4b5b2;
+  font-size: 14px;
+}
+.stamp-actions {
+  gap: 14px;
+}
+.stamp-button {
+  min-width: 165px;
+  padding: 13px 17px;
+  border-radius: 3px;
+  box-shadow:
+    0 5px 0 #0a0e13,
+    inset 0 1px 0 #ffffff1f,
+    0 6px 12px #0003;
+}
+.stamp-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #0a0e13;
+}
+.stamp-button > span {
+  font-size: 12px;
+  letter-spacing: 1.4px;
+}
+.stamp-button small {
+  font-size: 10px;
+  margin-top: 6px;
+}
+.stamp-button kbd {
+  font-size: 9px;
+}
+.approve {
+  background: #35594e;
+  color: #d4e6d3;
+  border-color: #689a7d;
+}
+.approve:hover {
+  background: #416e5d;
+}
+.deny {
+  background: #763d37;
+  color: #f7d8bf;
+  border-color: #ad7160;
+}
+.deny:hover {
+  background: #8e4940;
+}
+.detain {
+  background: #795d34;
+  color: #f7e7c0;
+  border-color: #b99c67;
+}
+.detain:hover {
+  background: #8a6c3d;
+}
+.terminal-footer {
+  min-height: 30px;
+  padding: 9px 30px;
+  background: #121820;
+  border-top: 1px solid #ffffff08;
+  color: #86929a;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.terminal-footer > span:nth-child(2),
+.terminal-footer > span:last-child {
+  display: none;
+}
+.primary-button {
+  background: #d9b780;
+  border-color: #d9b780;
+  color: #24262b;
+}
+.primary-button:hover {
+  background: #efd0a0;
+}
+.secondary-button {
+  background: #39424b;
+  border-color: #7e8a90;
+  color: #ece5d5;
+}
+.secondary-button:hover {
+  background: #46525d;
+}
+.modal {
+  background: #202832;
+  border-color: #71808c66;
+  box-shadow: 0 30px 120px #000b;
+}
+.modal::backdrop {
+  background: #080d16b8;
+  backdrop-filter: blur(6px);
+}
+.modal h2 {
+  color: #f3e8d6;
+  font-size: 32px;
+}
+.modal-head .eyebrow {
+  color: #a3b1ba;
+}
+.audit-explanation {
+  color: #d1d2c9;
+  font-size: 13px;
+}
+.audit-columns section {
+  background: #18212c;
+  border-color: #596b763b;
+}
+.audit-columns h3 {
+  color: #e0c49b;
+}
+.audit-columns small {
+  color: #a2b0ba;
+}
+.audit-row {
+  border-color: #ffffff0a;
+  font-size: 11px;
+  padding: 9px 0;
+}
+.audit-row b {
+  font-size: 10px;
+}
+.audit-policy {
+  margin: 18px 0;
+  color: #a8b5bc;
+  font-size: 11px;
+}
+.audit-policy summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.audit-note {
+  color: #a1afb6;
+}
+.audit-result {
+  background: #2d4c40;
+  border-color: #6d9c76;
+}
+.audit-result.incorrect {
+  background: #57332f;
+  border-color: #ae7562;
+}
+.log-entries p {
+  color: #bac2c7;
+}
+.log-entries article {
+  border-color: #64738133;
+}
+.shift-complete {
+  background-image:
+    linear-gradient(#111c2aeb, #111922ed), url("/assets/checkpoint.png");
+}
+
+/* The only instruction surface: a sealed, interactive briefing over the scene. */
+.briefing-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  background: transparent;
+  color: #ede3ce;
+  overflow: auto;
+}
+.briefing-dialog::backdrop {
+  background: radial-gradient(ellipse at center, #11192757, #050911c9);
+  backdrop-filter: blur(7px);
+}
+.briefing-stage {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  perspective: 1400px;
+}
+.briefing-kicker {
+  font:
+    10px "Courier New",
+    monospace;
+  letter-spacing: 3px;
+  color: #d3c8b2;
+  text-shadow: 0 1px 7px #000;
+  margin: 0 0 12px;
+  text-align: center;
+}
+.briefing-card {
+  width: min(470px, calc(100vw - 40px));
+  height: 620px;
+  flex-shrink: 0;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.briefing-flipper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.briefing-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 5px;
+}
+.briefing-front {
+  background:
+    radial-gradient(ellipse at top, #83524355, transparent 75%),
+    repeating-linear-gradient(12deg, #ffffff03 0 1px, transparent 1px 4px),
+    #442c2d;
+  border: 1px solid #d9b878;
+  box-shadow:
+    0 0 0 7px #452c2d,
+    0 0 0 8px #b5976655,
+    0 30px 80px #0009,
+    0 0 85px #e6b75c24;
+}
+.briefing-open {
+  height: 100%;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e8c798;
+  position: relative;
+  padding: 34px;
+  border: 1px solid #dbb87866;
+  outline-offset: 10px !important;
+}
+.briefing-open > svg {
+  margin: 6px 0 26px;
+}
+.briefing-corner {
+  position: absolute;
+  left: 26px;
+  top: 24px;
+  font:
+    10px "Courier New",
+    monospace;
+  letter-spacing: 1.8px;
+  color: #c29c77;
+}
+.briefing-classified {
+  font:
+    10px "Courier New",
+    monospace;
+  letter-spacing: 4px;
+  color: #d8ac84;
+}
+.briefing-open > strong {
+  font:
+    64px/0.94 Georgia,
+    serif;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  margin: 21px 0 24px;
+  text-align: center;
+  color: #f0d8ae;
+}
+.briefing-rule {
+  width: 50px;
+  height: 1px;
+  background: #c8a578;
+}
+.briefing-front-subtitle {
+  margin: 19px 0 22px;
+  font:
+    italic 19px Georgia,
+    serif;
+  color: #d2b698;
+}
+.briefing-seal {
+  height: 64px;
+  width: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid #9e6551;
+  outline: 1px solid #9e6551;
+  outline-offset: 4px;
+  color: #cf8d6b;
+  background: #63322d;
+  box-shadow: 0 3px 7px #0003;
+}
+.briefing-tap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  font:
+    11px "Courier New",
+    monospace;
+  letter-spacing: 2px;
+  color: #ffe3b4;
+  animation: briefing-glow 2.6s ease-in-out infinite;
+}
+.briefing-back {
+  transform: rotateY(180deg);
+  padding: 34px 36px 28px;
+  background:
+    repeating-linear-gradient(0deg, #90724806 0 1px, transparent 1px 4px),
+    #e8dec7;
+  color: #3a3832;
+  border: 1px solid #d0ba94;
+  box-shadow: 0 30px 80px #0009;
+  display: flex;
+  flex-direction: column;
+}
+.briefing-close {
+  position: absolute;
+  right: 14px;
+  top: 13px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: #645a49;
+  background: none;
+  border-radius: 50%;
+}
+.briefing-close:hover {
+  background: #b59c722a;
+}
+.briefing-back-label {
+  font:
+    8px "Courier New",
+    monospace;
+  letter-spacing: 1.6px;
+  color: #7d725d;
+  padding-right: 10px;
+}
+.briefing-back h1 {
+  font:
+    43px/0.98 Georgia,
+    serif;
+  letter-spacing: -1.5px;
+  margin: 24px 0 14px;
+  color: #3c3b34;
+}
+.briefing-back h1 em {
+  color: #8a4d3c;
+  font-weight: normal;
+}
+.briefing-intro {
+  font:
+    13px/1.7 Arial,
+    sans-serif;
+  color: #756952;
+  margin: 0 0 18px;
+}
+.briefing-rules {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.briefing-rules li {
+  display: flex;
+  gap: 15px;
+}
+.briefing-rules li > span {
+  font:
+    11px "Courier New",
+    monospace;
+  color: #9a7253;
+  padding-top: 4px;
+}
+.briefing-rules strong {
+  font:
+    17px Georgia,
+    serif;
+  color: #484438;
+}
+.briefing-rules p {
+  font:
+    12px/1.65 Arial,
+    sans-serif;
+  margin: 4px 0 0;
+  color: #716550;
+}
+.briefing-rules p b {
+  color: #534737;
+  font-weight: 600;
+}
+.briefing-pay {
+  margin-top: 20px;
+  border-top: 1px solid #bca78488;
+  border-bottom: 1px solid #bca78488;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  font:
+    11px "Courier New",
+    monospace;
+  gap: 8px;
+}
+.briefing-pay b {
+  color: #7c4939;
+}
+.briefing-footnote {
+  font:
+    10px/1.6 Arial,
+    sans-serif;
+  color: #82735b;
+  margin: 12px 0;
+}
+.briefing-begin {
+  margin-top: auto;
+  background: #394942;
+  border: 1px solid #30423a;
+  color: #f1e5ca;
+  width: 100%;
+  padding: 15px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font:
+    12px "Courier New",
+    monospace;
+}
+.briefing-begin:hover {
+  background: #4b6052;
+}
+.briefing-undertext {
+  color: #c2bbb0;
+  font:
+    italic 14px Georgia,
+    serif;
+  text-shadow: 0 1px 7px #000;
+  margin: 17px 0 0;
+  text-align: center;
+}
+@keyframes briefing-glow {
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (min-width: 1400px) {
+  .passport {
+    left: 13%;
+    width: 315px;
+  }
+  .permit {
+    left: 54%;
+    width: 300px;
+  }
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) 350px;
+  }
+}
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) 290px;
+  }
+  .passport {
+    left: 4%;
+    width: 265px;
+  }
+  .permit {
+    left: 48%;
+    width: 265px;
+    padding: 17px;
+  }
+  .passport-inner {
+    padding: 13px;
+  }
+  .passport-identity {
+    gap: 9px;
+  }
+  .passport-photo {
+    width: 65px;
+    height: 95px;
+  }
+  .document label {
+    font-size: 7px;
+  }
+  .passport-identity strong {
+    font-size: 10px;
+  }
+  .passport-identity b {
+    font-size: 10px;
+  }
+  .passport-fields b {
+    font-size: 12px;
+  }
+  .inspector-panel {
+    margin-right: 14px;
+  }
+  .applicant-heading {
+    padding: 20px 18px;
+  }
+  .applicant-heading h1 {
+    font-size: 24px;
+  }
+  .dossier-tabs {
+    padding: 0 18px;
+    gap: 21px;
+  }
+  .dossier-content {
+    padding: 18px;
+  }
+  .decision-caption p {
+    font-size: 12px;
+  }
+  .stamp-button {
+    min-width: 141px;
+    padding: 12px;
+  }
+  .stamp-actions {
+    gap: 10px;
+  }
+}
+@media (max-width: 850px) {
+  .topbar {
+    padding: 0 22px;
+  }
+  .shiftbar {
+    padding: 0 22px;
+  }
+  .shift-date {
+    font-size: 10px;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .desk-canvas {
+    height: 375px;
+  }
+  .passport {
+    left: 10%;
+    width: 280px;
+  }
+  .permit {
+    left: 52%;
+    width: 270px;
+  }
+  .inspector-panel {
+    display: block;
+    margin: 0 22px 22px;
+  }
+  .applicant-heading {
+    padding: 19px 22px 12px;
+  }
+  .applicant-heading > span {
+    flex-wrap: nowrap;
+  }
+  .dossier-content {
+    min-height: 0;
+    padding: 20px 22px;
+  }
+  .dossier-tabs {
+    padding: 0 22px;
+  }
+  .observation {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+  .decision-bar {
+    flex-direction: row;
+    padding: 20px 22px;
+  }
+  .decision-caption {
+    display: none;
+  }
+  .stamp-actions {
+    width: 100%;
+    gap: 13px;
+  }
+  .stamp-button {
+    flex: 1;
+  }
+  .decision-followup {
+    width: 100%;
+  }
+  .decision-followup button {
+    width: 100%;
+  }
+  .booth {
+    height: 275px;
+  }
+  .window-portrait {
+    left: 31%;
+    height: 230px;
+    width: 160px;
+  }
+  .window-speech {
+    left: 51%;
+    top: 99px;
+    width: 250px;
+  }
+  .window-speech p {
+    font-size: 25px;
+  }
+  .booth-location {
+    left: 22px;
+    font-size: 9px;
+  }
+  .booth-time {
+    right: 22px;
+    font-size: 9px;
+  }
+}
+@media (max-width: 600px) {
+  .topbar {
+    height: 60px;
+    padding: 0 17px;
+  }
+  .wordmark {
+    font-size: 15px;
+  }
+  .wordmark span {
+    font-size: 8px;
+    letter-spacing: 4px;
+  }
+  .topbar nav {
+    gap: 17px;
+  }
+  .topbar nav button span {
+    display: none;
+  }
+  .topbar nav .sound-toggle .sound-label {
+    display: none;
+  }
+  .topbar nav button {
+    padding: 10px 3px;
+  }
+  .shiftbar {
+    min-height: 46px;
+    padding: 0 18px;
+  }
+  .shiftbar .eyebrow {
+    display: none;
+  }
+  .shiftbar strong {
+    font-size: 19px;
+  }
+  .shift-date {
+    font-size: 9px;
+    letter-spacing: 0.4px;
+    max-width: none;
+  }
+  .shiftbar > div {
+    gap: 9px;
+  }
+  .shift-stats > span:first-child,
+  .shift-stats > i {
+    display: none;
+  }
+  .shift-stats .muted {
+    font-size: 8px;
+  }
+  .shift-stats b {
+    font-size: 15px;
+  }
+  .booth {
+    height: 243px;
+    background-position: 42% 49%;
+  }
+  .booth-location {
+    left: 18px;
+    top: 17px;
+    font-size: 8px;
+    letter-spacing: 0.4px;
+  }
+  .booth-location .live-dot {
+    margin-left: 4px;
+  }
+  .window-portrait {
+    width: 123px;
+    height: 181px;
+    left: 25%;
+  }
+  .window-speech {
+    left: auto;
+    right: 15px;
+    top: 92px;
+    width: 46%;
+    padding: 16px;
+  }
+  .window-speech > span {
+    font-size: 7px;
+    letter-spacing: 0.1px;
+  }
+  .window-speech p {
+    font-size: 22px;
+    margin-top: 11px;
+  }
+  .window-speech:before {
+    top: 35px;
+  }
+  .booth-time {
+    bottom: 12px;
+    right: 17px;
+    font-size: 8px;
+  }
+  .booth-time span {
+    display: none;
+  }
+  .window-name span {
+    font-size: 7px;
+  }
+  .section-heading {
+    padding: 0 20px;
+    font-size: 9px;
+    height: 47px;
+  }
+  .section-heading svg {
+    width: 13px;
+  }
+  .text-button {
+    font-size: 9px;
+  }
+  .desk-canvas {
+    height: 680px;
+  }
+  .passport {
+    width: 280px;
+    left: 5%;
+    top: 5px;
+  }
+  .permit {
+    width: 280px;
+    left: auto;
+    right: 5%;
+    top: 317px;
+    padding: 18px 20px 10px;
+  }
+  .passport-inner {
+    padding: 15px 17px;
+  }
+  .passport-identity strong {
+    font-size: 11px;
+  }
+  .passport-identity b {
+    font-size: 11px;
+  }
+  .passport-fields b {
+    font-size: 12px;
+  }
+  .passport-photo {
+    width: 68px;
+    height: 99px;
+  }
+  .document label {
+    font-size: 8px;
+  }
+  .inspector-panel {
+    margin: 0 15px 20px;
+  }
+  .applicant-heading {
+    padding: 21px 22px 16px;
+  }
+  .applicant-heading h1 {
+    font-size: 27px;
+  }
+  .applicant-heading > span {
+    font-size: 10px;
+  }
+  .dossier-content {
+    padding: 21px 22px;
+  }
+  .dossier-tabs {
+    gap: 30px;
+  }
+  .decision-bar {
+    padding: 17px 15px 22px;
+  }
+  .stamp-actions {
+    gap: 9px;
+  }
+  .stamp-button {
+    min-width: 0;
+    padding: 11px 9px;
+    gap: 6px;
+  }
+  .stamp-button > span {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+  .stamp-button small {
+    font-size: 8px;
+  }
+  .stamp-button > svg {
+    width: 16px;
+  }
+  .stamp-button kbd {
+    display: none;
+  }
+  .terminal-footer {
+    padding: 12px 18px;
+    font-size: 7px;
+  }
+  .audit-columns {
+    grid-template-columns: 1fr;
+  }
+  .modal {
+    padding: 24px;
+  }
+  .combined-ruling {
+    align-items: flex-start;
+  }
+  .combined-ruling .eyebrow {
+    font-size: 8px;
+    line-height: 1.7;
+  }
+  .briefing-stage {
+    padding: 24px 18px;
+  }
+  .briefing-kicker {
+    font-size: 8px;
+    letter-spacing: 1.8px;
+    margin-bottom: 10px;
+  }
+  .briefing-card {
+    width: min(440px, calc(100vw - 36px));
+    height: 610px;
+  }
+  .briefing-back {
+    padding: 29px 25px 24px;
+  }
+  .briefing-back h1 {
+    font-size: 40px;
+    margin-top: 21px;
+  }
+  .briefing-intro {
+    font-size: 12px;
+    margin-bottom: 17px;
+  }
+  .briefing-rules {
+    gap: 13px;
+  }
+  .briefing-rules li {
+    gap: 10px;
+  }
+  .briefing-rules p {
+    font-size: 11px;
+    line-height: 1.65;
+  }
+  .briefing-pay {
+    font-size: 9px;
+  }
+  .briefing-footnote {
+    font-size: 10px;
+  }
+  .briefing-open > strong {
+    font-size: 53px;
+  }
+  .briefing-classified {
+    font-size: 9px;
+    letter-spacing: 3px;
+  }
+  .briefing-tap {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+  .briefing-undertext {
+    font-size: 12px;
+  }
+  .briefing-begin {
+    font-size: 11px;
+  }
+}
+@media (max-width: 360px) {
+  .briefing-card {
+    height: 650px;
+  }
+  .briefing-back {
+    padding: 28px 20px 22px;
+  }
+  .passport,
+  .permit {
+    width: 270px;
+  }
+  .shift-date {
+    font-size: 8px;
+  }
+  .stamp-button > svg {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .briefing-tap {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .document-picker {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 18px 14px;
+  }
+  .document-picker button {
+    background: #262525;
+    color: #b9afa0;
+    padding: 9px 20px;
+    border: 1px solid #a3927930;
+    border-radius: 3px;
+    font:
+      11px "Courier New",
+      monospace;
+  }
+  .document-picker button[aria-pressed="true"] {
+    background: #d7c4a0;
+    color: #352e27;
+    border-color: #d7c4a0;
+  }
+  .desk-canvas {
+    height: 390px;
+  }
+  .desk-canvas .passport,
+  .desk-canvas .permit {
+    top: 8px;
+    left: calc((100% - 280px) / 2);
+    right: auto;
+  }
+  .desk-canvas[data-active-document="passport"] .permit,
+  .desk-canvas[data-active-document="permit"] .passport {
+    display: none;
+  }
+}
+@media (max-width: 360px) {
+  .desk-canvas .passport,
+  .desk-canvas .permit {
+    left: calc((100% - 270px) / 2);
+  }
+}
+
+.evidence-readout { margin: 16px; padding: 16px; border: 1px solid #646952; background: #151e20; color: #e9dfc6; font-size: 12px; }
+.evidence-readout > strong { font-size: 10px; letter-spacing: .12em; color: #e1b77b; }
+.evidence-report { margin-top: 12px; }
+.evidence-report small { display: block; opacity: .7; margin-bottom: 8px; }
+.evidence-report div { display: flex; justify-content: space-between; margin: 6px 0; }
+.evidence-report meter { width: 100%; height: 8px; accent-color: #e1b77b; }
+/* Six frames per row, one row per traveler. Hold the neutral pose between blinks. */
+.window-portrait .portrait-idle {
+  background-image: url('/assets/travelers-idle-cutout.png');
+  background-color: #3e4034;
+  background-size: 600% 300%;
+  background-position-x: 0%;
+  background-repeat: no-repeat;
+  animation: traveler-idle 5.2s steps(1, end) infinite;
+}
+@keyframes traveler-idle {
+  0%, 82% { background-position-x: 0%; }
+  84% { background-position-x: 20%; }
+  86% { background-position-x: 40%; }
+  88% { background-position-x: 60%; }
+  90% { background-position-x: 80%; }
+  94% { background-position-x: 100%; }
+  100% { background-position-x: 0%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .window-portrait .portrait-idle { animation: none; background-position-x: 0%; }
+}
+
+/* The traveler stands at the window, rather than inside a portrait frame. */
+.booth {
+  height: 410px;
+  isolation: isolate;
+  overflow: hidden;
+  background-image: radial-gradient(ellipse at 43% 55%, #19212718, #080d16d9 85%), url("/assets/checkpoint.png");
+  background-position: center 48%;
+  border-bottom: 12px solid #141719;
+}
+.booth::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 38px;
+  background: linear-gradient(transparent, #101519);
+  pointer-events: none;
+  z-index: 3;
+}
+.window-portrait {
+  left: 43%;
+  bottom: -22px;
+  width: 300px;
+  height: 450px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  z-index: 2;
+}
+.window-portrait .portrait { filter: drop-shadow(0 10px 22px #0009); }
+.window-portrait .portrait-idle { background-color: transparent; }
+.window-name { display: none; }
+.window-speech {
+  left: 60%;
+  right: auto;
+  top: 135px;
+  width: 300px;
+  padding: 20px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-shadow: 0 3px 10px #000;
+  z-index: 4;
+}
+.window-speech::before { display: none; }
+.window-speech p { font-size: 34px; line-height: 1.25; }
+.booth-location, .booth-time { z-index: 4; }
+@media (max-width: 850px) {
+  .booth { height: 370px; }
+  .window-portrait { left: 36%; width: 266px; height: 399px; bottom: -18px; }
+  .window-speech { left: 61%; top: 145px; width: 34%; }
+  .window-speech p { font-size: 26px; }
+}
+@media (max-width: 600px) {
+  .booth { height: 350px; background-position: 45% 50%; }
+  .window-portrait { left: 39%; bottom: -16px; width: 230px; height: 345px; }
+  .window-speech { left: auto; right: 14px; top: 145px; width: 35%; padding: 0; }
+  .window-speech > span { font-size: 8px; }
+  .window-speech p { font-size: 23px; }
+  .booth-location { font-size: 7px; top: 12px; left: 14px; }
+  .booth-time { bottom: 12px; }
+}

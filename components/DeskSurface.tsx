@@ -17,6 +17,7 @@ export function DeskSurface({
   const bounds = useRef<HTMLDivElement>(null);
   const [front, setFront] = useState("permit");
   const [layout, setLayout] = useState(0);
+  const [mobileDocument, setMobileDocument] = useState("passport");
   return (
     <section className="desk-area">
       <div className="section-heading">
@@ -36,10 +37,35 @@ export function DeskSurface({
           <RotateCcw size={12} /> Reset papers
         </button>
       </div>
-      <div className="desk-canvas" ref={bounds}>
-        <div className="desk-label">
-          DOCUMENTS RECEIVED <span>02</span>
-        </div>
+      <div
+        className="document-picker"
+        role="group"
+        aria-label="Documents on desk"
+      >
+        <button
+          aria-pressed={mobileDocument === "passport"}
+          onClick={() => {
+            setMobileDocument("passport");
+            onPaperSound();
+          }}
+        >
+          Passport
+        </button>
+        <button
+          aria-pressed={mobileDocument === "permit"}
+          onClick={() => {
+            setMobileDocument("permit");
+            onPaperSound();
+          }}
+        >
+          Entry permit
+        </button>
+      </div>
+      <div
+        className="desk-canvas"
+        ref={bounds}
+        data-active-document={mobileDocument}
+      >
         <motion.article
           key={`passport-${layout}`}
           drag
@@ -196,9 +222,6 @@ export function DeskSurface({
             </motion.div>
           )}
         </motion.article>
-        <div className="desk-hint">
-          <Grip size={13} /> Drag documents to compare details
-        </div>
       </div>
     </section>
   );

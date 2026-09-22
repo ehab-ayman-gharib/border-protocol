@@ -108,6 +108,7 @@ test("three mistakes cannot reduce credits below zero", () => {
 });
 const upstream = {
   answers: {
+    declaration_accuracy: { type: "choice", choice: "supported", confidence: 0.92 },
     story_coherence: { type: "score", score: 2.97 },
     smuggling_risk: { type: "noul", noul: 0.03 },
     semantic_assessment: {
@@ -126,6 +127,10 @@ test("Jev parser normalizes typed answers and rejects malformed probabilities", 
   const invalid = structuredClone(upstream);
   invalid.answers.smuggling_risk.noul = 5;
   assert.throws(() => normalizeJevResponse(invalid));
+  for (const declaration of [undefined, { type: "choice", choice: "honest", confidence: 0.9 }, { type: "choice", choice: "supported", confidence: 1.1 }]) {
+    assert.throws(() => normalizeJevResponse({ answers: { ...upstream.answers, declaration_accuracy: declaration } }));
+  }
+  assert.deepEqual(normalizeJevResponse(upstream).declaration_accuracy, { choice: "supported", confidence: 0.92 });
 });
 test("gateway uses official endpoint, Bearer key and model; only semantic evidence is sent", async () => {
   const config = gatewayConfig({ AI_GATEWAY_API_KEY: "test-key" });

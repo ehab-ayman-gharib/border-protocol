@@ -17,6 +17,7 @@ export interface EntryPermitDoc {
   sealSvgRaw: string;
 }
 export interface EntrantApplicant {
+  cargoEvidence?: { stage: "declared" | "inspected"; declaredItems: string[] };
   id: string;
   portrait: number;
   bio: {

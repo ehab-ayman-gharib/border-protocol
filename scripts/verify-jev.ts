@@ -1,6 +1,8 @@
 import { loadEnvConfig } from "@next/env";
 import { ENTRANT_PRESETS } from "../fixtures/presets";
 import { evaluateWithJev, gatewayConfig } from "../lib/jevGateway";
+import { evaluateDeterministicRules } from "../lib/deterministic";
+import { resolveInspection } from "../lib/resolution";
 
 async function main() {
   loadEnvConfig(process.cwd(), true);
@@ -16,14 +18,22 @@ async function main() {
     console.log(JSON.stringify({ upstreamStatus: response.status }));
     return response;
   };
-  for (const entrant of ENTRANT_PRESETS) {
+  const entrants = ENTRANT_PRESETS;
+  const verdicts: (string | null)[] = [];
+  for (const entrant of entrants) {
     const result = await evaluateWithJev(entrant, config, diagnosticFetch);
-    console.log(JSON.stringify({ entrant: entrant.id, ...result }));
+    const resolution = resolveInspection(evaluateDeterministicRules(entrant), result);
+    verdicts.push(resolution.verdict);
+    console.log(JSON.stringify({ entrant: entrant.id, ...result, resolution }));
     if (result.source !== "live") {
       console.error("Live verification failed; this result is the local fallback.");
       process.exitCode = 1;
       break;
     }
+  }
+  if (!process.exitCode && JSON.stringify(verdicts.sort()) !== JSON.stringify(["ADMIT", "DENY", "DETAIN"])) {
+    console.error("Live responses did not produce all three showcase verdicts for the static cases.");
+    process.exitCode = 1;
   }
 }
 main().catch(() => {

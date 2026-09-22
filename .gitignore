@@ -1,5 +1,7 @@
 node_modules/
 .next/
+.next-dev/
+.vercel/
 .next-production/
 *.tmp.md
 .env*

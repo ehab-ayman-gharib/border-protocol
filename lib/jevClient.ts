@@ -1,19 +1,39 @@
 import type { EntrantApplicant } from "@/types/border";
 import { COHERENCE, type JevBorderResponse, type Judgment } from "@/types/jev";
 import { debugLog } from "./debug";
+import { declaredCargo, evidenceFor, type EvidenceStage } from "./evidence";
 export function mockJevResponse(entrant: EntrantApplicant): JevBorderResponse {
   const dangerous = /explosive|munition|weapon|bomb/i.test(
     entrant.bio.carriedItems.join(" "),
   );
+  const mismatch =
+    entrant.entryPermit.purpose === "VISIT" &&
+    /here for employment/i.test(entrant.bio.declaredPurpose);
+  const uncertain = /no contents declaration/i.test(
+    entrant.bio.carriedItems.join(" "),
+  );
   return {
-    story_coherence: {
-      score: dangerous ? "contradictory" : "consistent",
-      value: dangerous ? 0 : 3,
+    declaration_accuracy: {
+      choice: entrant.cargoEvidence?.stage === "declared" ? "unverified" : dangerous && !/explosive|munition|weapon|bomb/i.test((entrant.cargoEvidence?.declaredItems ?? declaredCargo(entrant)).join(" ")) ? "contradicted" : uncertain ? "unverified" : "supported",
+      confidence: entrant.cargoEvidence?.stage === "declared" ? 1 : uncertain ? 0.45 : 0.94,
     },
-    smuggling_risk: { probability: dangerous ? 0.94 : 0.03 },
+    story_coherence: {
+      score:
+        dangerous || mismatch
+          ? "contradictory"
+          : uncertain
+            ? "plausible"
+            : "consistent",
+      value: dangerous || mismatch ? 0 : uncertain ? 1.5 : 3,
+    },
+    smuggling_risk: { probability: dangerous ? 0.94 : uncertain ? 0.45 : 0.03 },
     semantic_assessment: {
-      choice: dangerous ? "security_concern" : "no_concern",
-      confidence: dangerous ? 0.89 : 0.94,
+      choice: dangerous
+        ? "security_concern"
+        : mismatch
+          ? "purpose_mismatch"
+          : "no_concern",
+      confidence: dangerous ? 0.89 : uncertain ? 0.45 : 0.94,
     },
   };
 }
@@ -27,7 +47,11 @@ export function normalizeJevResponse(raw: unknown): JevBorderResponse {
   const score = a?.story_coherence;
   const risk = a?.smuggling_risk;
   const assessment = a?.semantic_assessment;
+  const declaration = a?.declaration_accuracy;
   if (
+    declaration?.type !== "choice" ||
+    !["supported", "contradicted", "unverified"].includes(String(declaration.choice)) ||
+    !probability(declaration.confidence) ||
     score?.type !== "score" ||
     typeof score.score !== "number" ||
     !Number.isFinite(score.score) ||
@@ -43,6 +67,10 @@ export function normalizeJevResponse(raw: unknown): JevBorderResponse {
   )
     throw new Error("Invalid typed response");
   return {
+    declaration_accuracy: {
+      choice: declaration.choice as JevBorderResponse["declaration_accuracy"]["choice"],
+      confidence: declaration.confidence,
+    },
     story_coherence: {
       score: COHERENCE[Math.round(score.score)],
       value: score.score,
@@ -59,6 +87,8 @@ export function buildJevPayload(e: EntrantApplicant, model = "jev-latest") {
   return {
     model,
     state: {
+      cargo_evidence_stage: e.cargoEvidence?.stage ?? "inspected",
+      declared_cargo: e.cargoEvidence?.declaredItems ?? declaredCargo(e),
       profession: e.bio.statedProfession,
       declared_purpose: e.bio.declaredPurpose,
       carried_items: e.bio.carriedItems,
@@ -66,6 +96,15 @@ export function buildJevPayload(e: EntrantApplicant, model = "jev-latest") {
       permit_purpose: e.entryPermit.purpose,
     },
     questions: {
+      declaration_accuracy: {
+        type: "choice",
+        instructions: "Compare declared_cargo against carried_items only after inspection. When cargo_evidence_stage is declared, select unverified: an unsearched declaration cannot verify itself. After inspection, judge material omissions or contradictions, not harmless differences in wording. Do not infer deliberate lying, guilt, or an entry verdict.",
+        criteria: {
+          supported: "Inspected contents support the cargo declaration, with no material discrepancy",
+          contradicted: "Inspection reveals materially different or omitted cargo, such as explosives described as ordinary watch parts",
+          unverified: "Luggage has not been inspected, or the evidence is insufficient to assess the declaration",
+        },
+      },
       story_coherence: {
         type: "score",
         instructions:
@@ -104,6 +143,11 @@ export function validateJudgment(value: unknown): Judgment {
   const data = candidate.data;
   const normalized = normalizeJevResponse({
     answers: {
+      declaration_accuracy: {
+        type: "choice",
+        choice: data?.declaration_accuracy?.choice,
+        confidence: data?.declaration_accuracy?.confidence,
+      },
       story_coherence: { type: "score", score: data?.story_coherence?.value },
       smuggling_risk: { type: "noul", noul: data?.smuggling_risk?.probability },
       semantic_assessment: {
@@ -130,6 +174,7 @@ export function validateJudgment(value: unknown): Judgment {
 export async function fetchJevJudgment(
   entrant: EntrantApplicant,
   signal: AbortSignal,
+  stage: EvidenceStage = "inspected",
 ): Promise<Judgment> {
   const start = performance.now();
   debugLog("JEV", "Requesting applicant judgment", {
@@ -140,7 +185,7 @@ export async function fetchJevJudgment(
     const response = await fetch("/api/judgment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entrantId: entrant.id }),
+      body: JSON.stringify({ entrantId: entrant.id, stage }),
       signal,
     });
     debugLog("JEV", "Game API responded", {
@@ -170,7 +215,7 @@ export async function fetchJevJudgment(
       throw error;
     }
     const fallback: Judgment = {
-      data: mockJevResponse(entrant),
+      data: mockJevResponse(evidenceFor(entrant, stage)),
       source: "local",
       reason: "unavailable",
       latencyMs: Math.round(performance.now() - start),

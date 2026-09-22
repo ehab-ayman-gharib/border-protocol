@@ -24,3 +24,13 @@ Final prompt:
 - Passport, permit and ink stamps: CSS and accessible HTML, keeping text sharp and selectable by assistive tools.
 - Sound effects: procedural Web Audio in `lib/sound.ts`; filtered noise for paper and stamp impacts, distinct triangle-wave tones for each stamp, intercom cues, and audit success/citation tones. No external audio files.
 - Interface icons: Lucide React.
+
+## Idle animation atlas
+
+`public/assets/travelers-idle.png` is a generated 1448 x 1086 PNG with six columns and three rows (Jorji, Boris, Elysia). Created with the built-in imagegen skill using `travelers.png` as the identity/style reference. Prompt requested identical registered portraits, neutral / half blink / closed eyes / reopening / relaxed breath / neutral frames, muted pixel art, no labels or gutters.
+
+The checkpoint animates this atlas with discrete CSS frame positions and long neutral holds. Passport photos use the original atlas. Reduced motion freezes frame zero; failed sprite loading retains the original portrait. Generated artwork may have small registration differences between frames; this is an idle-animation prototype.
+
+## Foreground traveler cutouts
+
+`public/assets/travelers-idle-cutout.png` is the transparent-background variant of the idle atlas, created with built-in imagegen. The edit removed the olive backdrop while preserving the six-column, three-row layout and blink poses. The checkpoint uses this atlas for larger, unframed foreground characters. The previous atlas remains available as the original source. Passport photos are unchanged.

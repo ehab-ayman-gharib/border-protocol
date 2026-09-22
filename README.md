@@ -1,6 +1,6 @@
 # Border Protocol
 
-A complete three-case border-inspection shift built with Next.js 15, React 19, TypeScript, Tailwind CSS and Framer Motion. All art is stored locally; the game is playable without API credentials.
+A replayable three-traveler border-inspection shift built with Next.js 15, React 19, TypeScript, Tailwind CSS and Framer Motion. All art is stored locally; the game is playable without API credentials.
 
 ## Run locally
 
@@ -11,17 +11,23 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. For a production build, run `npm run build`, then `npm start`. Production artifacts use `.next-production` so building does not overwrite the active development server.
+Open http://localhost:3000. For a production build, run `npm run build`, then `npm start`. Production artifacts use the standard `.next` directory expected by Vercel. Development uses `.next-dev` to keep its artifacts separate.
 
 ## Play
 
-Inspect the passport and entry permit. Drag papers to rearrange them; **Reset papers** restores their positions. Read the interview and open the **Luggage** tab to compare carried items with the declared purpose.
+At the beginning of each shift, tap the highlighted sealed briefing card. It flips and zooms in over a blurred checkpoint; close it to begin. The background stays inactive and evaluation starts only after the briefing closes. Keyboard users can open the card with Enter/Space and begin with the close button or Escape after opening it. Reduced-motion settings skip the flip animation.
+
+Inspect the passport and entry permit. Drag papers to rearrange them; **Reset papers** restores their positions. On mobile, switch between **Passport** and **Entry permit** above the desk. Read the interview and open the **Luggage** tab to see the traveler's declaration. Once the provisional assessment arrives, select **Open luggage** to reveal the actual contents and request a new Jev assessment. Stamps unlock after that assessment finishes.
 
 - **Approve / 1:** legitimate travel with valid documents.
 - **Deny / 2:** expired or inconsistent documents, or a purpose mismatch.
 - **Detain / 3:** evidence of dangerous contraband.
 
-Each decision is final for that applicant. Open the audit to see the deterministic document checks and separate semantic judgment, then call the next traveler. Decisions matching the combined ruling earn 5 credits; conflicting decisions cost 10, with a zero minimum. Inconclusive cases are unscored. Complete all three cases to receive the shift report. Use **Start a new shift** to replay. The field manual and shift log are available in the header; sound can be enabled there too. Reloading starts a new shift.
+Each decision is final for that applicant. Open the audit to see the deterministic document checks and separate semantic judgment, then call the next traveler. Decisions matching the combined ruling earn 5 credits; conflicting decisions cost 10, with a zero minimum. Inconclusive cases are unscored. Complete all three cases to receive the shift report. Use **Start a new shift** to replay. Instructions live exclusively on the opening briefing card; the shift log is available in the header; sound can be enabled there too. Reloading starts a new shift with the same three cases.
+
+## Static showcase
+
+Every shift uses the original cases in order: Jorji has an expired passport, Boris carries explosive casings, and Elysia has valid documents and legitimate conference supplies. Reloads and restarts preserve these cases. Randomized generation and seed URLs are no longer used. Jev still evaluates the actual evidence; live uncertainty is never replaced with a forced verdict.
 
 ## Vercel AI Gateway + Jev
 
@@ -31,7 +37,7 @@ Copy `.env.example` to `.env.local`, then set your server-side key:
 AI_GATEWAY_API_KEY=your_gateway_key
 ```
 
-Restart the dev server after changing environment variables. `VERCEL_AI_GATEWAY_KEY` is also accepted. Credentials are never sent to the browser. The client sends only a known entrant ID to `POST /api/judgment`; the server constructs the semantic evidence from its fixtures.
+Restart the dev server after changing environment variables. `VERCEL_AI_GATEWAY_KEY` is also accepted. Credentials are never sent to the browser. The client sends an entrant ID to `POST /api/judgment`; the server looks up the original static case and sends its semantic evidence to Jev. Client-supplied case fields are never trusted.
 
 The default integration uses the documented TypeSafe-compatible Vercel route:
 
@@ -99,6 +105,22 @@ Unit tests cover date boundaries, identity/reference/duration mismatches, SHA-25
 - `lib/jevClient.ts`: typed request construction, response normalization and local fallback.
 - `lib/jevGateway.ts`: server-side configuration, authentication and network timeout.
 - `app/api/judgment/route.ts`: known-entrant API, caching and concurrent request coalescing.
-- `fixtures/presets.ts`: three authored entrants from the specification.
+- `fixtures/presets.ts`: the three static showcase cases.
 
 The dependency override keeps Next.js 15’s transitive PostCSS on a patched release. `package-lock.json` records the installed dependency versions.
+
+## Evidence discovery
+
+Jev first sees declared cargo only. Opening luggage reveals the fixed inspection findings and triggers a separate assessment. Boris declares watch parts; the search reveals explosive casings. The live readout and audit show actual before/after coherence and risk, with each report labeled live or local. Scores are never forced to change. Reports and discovered items are frozen when stamped.
+
+The judgment API accepts `stage: "declared" | "inspected"` (defaults to inspected for verification tools), constructs stage-specific evidence on the server, and caches each stage separately. Browser fallback uses the same stage-specific evidence. Invalid stages are rejected. Each traveler must be searched before a verdict can be issued.
+
+## Declaration accuracy and findings
+
+A fourth Jev question compares declared cargo to inspection findings: Supported, Contradicted, or Unverified, with its own returned confidence. Before a search, the declaration is unverified. The readout and frozen audit display this alongside the existing semantic finding (no concern, purpose mismatch, security concern) and assessment confidence. These confidence values describe model assessments, not probabilities of guilt. Declaration accuracy is informational and does not alter scoring. Each stage remains labeled live or local; the local simulator handles only the authored cases.
+
+## Deploy to Vercel
+
+Import the GitHub repository with the project root set to `./`. The repository pins Node.js 22.x and configures the Next.js framework, `npm run build`, and `.next` output in `vercel.json`. Add `AI_GATEWAY_API_KEY` in Vercel Project Settings > Environment Variables for Production (and Preview if needed), then deploy. Local `.env.local` is never committed or uploaded. If using direct Jev instead, configure `JEV_API_KEY` as described above.
+
+The previous deployment error came from writing production builds to `.next-production` while Vercel expected `.next`. Production builds now consistently write `.next`; no manual output-directory workaround is needed.

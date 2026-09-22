@@ -1,6 +1,7 @@
 import { ArrowRight, Check, CircleX, Cpu, ShieldAlert } from "lucide-react";
 import type { Decision } from "@/lib/game";
 import { Modal } from "./Modal";
+import { AssessmentReadout } from "./AssessmentReadout";
 
 export function TelemetryModal({
   decision,
@@ -62,6 +63,23 @@ export function TelemetryModal({
         <strong>{resolution.verdict ?? "UNRESOLVED"}</strong>
       </div>
       <p className="audit-explanation">{resolution.explanation}</p>
+      {decision.beforeInspection && (
+        <AssessmentReadout
+          before={decision.beforeInspection}
+          current={judgment}
+          inspected
+        />
+      )}
+      {decision.inspectedItems && (
+        <details className="audit-policy">
+          <summary>Evidence revealed by the search</summary>
+          <ul>
+            {decision.inspectedItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </details>
+      )}
       <div className="audit-columns">
         <section>
           <h3>
@@ -129,17 +147,20 @@ export function TelemetryModal({
           </div>
         </section>
       </div>
-      <p className="audit-note">
-        Coherence is a rubric score, not a probability of innocence. Security
-        concern + risk ≥80% + confidence ≥70% requires detention. Otherwise
-        invalid papers require denial. With valid papers and risk ≤20%, a
-        confident purpose mismatch with coherence &lt;2/3 requires denial; no
-        concern with coherence ≥2/3 permits entry. Other combinations are
-        unresolved. Scores are displayed out of 100; policy uses the unrounded
-        value. This report is locked when you stamp.
-        {judgment.source === "local" &&
-          " This inspection uses offline rules, not live Jev."}
-      </p>
+      <details className="audit-policy">
+        <summary>How the Ministry reaches a ruling</summary>
+        <p className="audit-note">
+          Coherence is a rubric score, not a probability of innocence. Security
+          concern + risk ≥80% + confidence ≥70% requires detention. Otherwise
+          invalid papers require denial. With valid papers and risk ≤20%, a
+          confident purpose mismatch with coherence &lt;2/3 requires denial; no
+          concern with coherence ≥2/3 permits entry. Other combinations are
+          unresolved. Scores are displayed out of 100; policy uses the unrounded
+          value. This report is locked when you stamp.
+          {judgment.source === "local" &&
+            " This inspection uses offline rules, not live Jev."}
+        </p>
+      </details>
       <button autoFocus className="primary-button full-width" onClick={onNext}>
         {last ? "Finish shift" : "Call next applicant"}
         <ArrowRight size={17} />

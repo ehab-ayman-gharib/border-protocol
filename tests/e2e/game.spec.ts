@@ -1,17 +1,34 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+import { evidenceFor } from "../../lib/evidence";
 import { ENTRANT_PRESETS } from "../../fixtures/presets";
 import { mockJevResponse, validateJudgment } from "../../lib/jevClient";
 
+async function beginShift(page: Page) {
+  await page.getByRole("button", { name: "Open your briefing card" }).click();
+  await page
+    .getByRole("button", { name: "Close briefing & begin shift" })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Shift briefing" }),
+  ).toHaveCount(0);
+}
+
+async function inspectLuggage(page: Page) {
+  await page.getByRole("tab", { name: /Luggage/ }).click();
+  const open = page.getByRole("button", { name: "Open luggage", exact: true });
+  if (await open.count()) await open.click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/judgment", async (route) => {
-    const id = route.request().postDataJSON().entrantId;
+    const { entrantId: id, stage } = route.request().postDataJSON();
     const entrant = ENTRANT_PRESETS.find((e) => e.id === id)!;
     await route.fulfill({
       json: {
         source: "local",
         reason: "unconfigured",
         latencyMs: 0,
-        data: mockJevResponse(entrant),
+        data: mockJevResponse(evidenceFor(entrant, stage ?? "inspected")),
       },
     });
   });
@@ -22,6 +39,7 @@ test("complete a perfect shift, inspect audits, then restart", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
+  await beginShift(page);
   await expect(
     page.getByRole("heading", { name: "Jorji Costava" }),
   ).toBeVisible();
@@ -29,15 +47,12 @@ test("complete a perfect shift, inspect audits, then restart", async ({
     page.getByText("LOCAL SIMULATION", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("article", { name: "Entry permit", exact: true }),
-  ).toHaveCSS("opacity", "1");
-  await expect(
     page.getByRole("article", { name: "Passport", exact: true }),
   ).toHaveCSS("opacity", "1");
   await page.screenshot({ path: "test-results/desktop.png", fullPage: true });
-  await page.getByRole("button", { name: "Field manual" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("button", { name: "Return to duty" }).click();
+  await expect(page.getByRole("button", { name: "Field manual" })).toHaveCount(
+    0,
+  );
   const pass = page.getByRole("article", { name: "Passport", exact: true });
   const before = await pass.boundingBox();
   if (!before) throw new Error("Missing passport");
@@ -48,13 +63,14 @@ test("complete a perfect shift, inspect audits, then restart", async ({
   const after = await pass.boundingBox();
   expect(after!.x).toBeGreaterThan(before.x + 20);
   await page.getByRole("button", { name: "Reset papers" }).click();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
   await expect(
     page.getByText("DENIED", { exact: false }).first(),
   ).toBeVisible();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Protocol upheld.")).toBeVisible();
-  await expect(page.getByText("No concern", { exact: true })).toBeVisible();
+  await expect(page.getByText("No concern", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Semantic recommendation")).toHaveCount(0);
   await page.screenshot({
     path: "test-results/combined-audit.png",
@@ -65,14 +81,21 @@ test("complete a perfect shift, inspect audits, then restart", async ({
     page.getByRole("heading", { name: "Boris Vance" }),
   ).toBeVisible();
   await page.getByRole("tab", { name: /Luggage/ }).click();
-  await expect(page.getByText("Heavy brass explosive casings")).toBeVisible();
+  await inspectLuggage(page);
+  await expect(
+    page.getByText("Heavy brass explosive casings", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DETAIN.*Call security/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
-  await expect(page.getByText("94%", { exact: true })).toBeVisible();
+  await expect(page.getByText("94%", { exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "Call next applicant" }).click();
   await expect(
     page.getByRole("heading", { name: "Elysia Ward" }),
   ).toBeVisible();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /APPROVE.*Grant entry/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await page.getByRole("button", { name: "Finish shift" }).click();
@@ -85,6 +108,7 @@ test("complete a perfect shift, inspect audits, then restart", async ({
     fullPage: true,
   });
   await page.getByRole("button", { name: "Start a new shift" }).click();
+  await beginShift(page);
   await expect(
     page.getByRole("heading", { name: "Jorji Costava" }),
   ).toBeVisible();
@@ -95,6 +119,7 @@ test("mobile layout, incorrect verdict, dialog keyboard guard and log", async ({
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
+  await beginShift(page);
   await expect(
     page.getByRole("heading", { name: "Jorji Costava" }),
   ).toBeVisible();
@@ -104,15 +129,27 @@ test("mobile layout, incorrect verdict, dialog keyboard guard and log", async ({
     ),
   ).toBe(true);
   await expect(
+    page.getByRole("article", { name: "Passport", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Entry permit", exact: true }).click();
+  await expect(
     page.getByRole("article", { name: "Entry permit", exact: true }),
   ).toHaveCSS("opacity", "1");
+  await expect(
+    page.getByRole("article", { name: "Entry permit", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("article", { name: "Passport", exact: true }),
+  ).toBeHidden();
+  await page.getByRole("button", { name: "Passport", exact: true }).click();
   await page.screenshot({ path: "test-results/mobile.png", fullPage: true });
-  await page.getByRole("button", { name: "Read inspection rules" }).click();
+  await page.getByRole("button", { name: "Shift log" }).click();
   await page.keyboard.press("1");
   await page.getByRole("button", { name: "Close dialog" }).click();
   await expect(
     page.getByRole("button", { name: /APPROVE.*Grant entry/ }),
   ).toBeVisible();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /APPROVE.*Grant entry/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Citation issued.")).toBeVisible();
@@ -129,12 +166,29 @@ test("API rejects unknown entrants and provides valid typed assessments", async 
     ).status(),
   ).toBe(400);
   const response = await request.post("/api/judgment", {
-    data: { entrantId: "entrant-02-smuggler" },
+    data: { entrantId: ENTRANT_PRESETS[1].id },
   });
   expect(response.ok()).toBe(true);
   const result = await response.json();
   expect(() => validateJudgment(result)).not.toThrow();
   expect(result.data).not.toHaveProperty("recommended_verdict");
+});
+
+test("reloads preserve the original static case even with an old seed URL", async ({
+  page,
+}) => {
+  for (const url of ["/", "/?seed=test-39"]) {
+    await page.goto(url);
+    await beginShift(page);
+    await expect(
+      page.getByRole("article", { name: "Passport", exact: true }),
+    ).toContainText("OB-79102-K");
+    await page.reload();
+    await beginShift(page);
+    await expect(
+      page.getByRole("article", { name: "Passport", exact: true }),
+    ).toContainText("OB-79102-K");
+  }
 });
 
 test("stamps wait for Jev and an uncertain live report remains unscored", async ({
@@ -147,9 +201,9 @@ test("stamps wait for Jev and an uncertain live report remains unscored", async 
   await page.unroute("**/api/judgment");
   await page.route("**/api/judgment", async (route) => {
     await gate;
-    const id = route.request().postDataJSON().entrantId;
+    const { entrantId: id, stage } = route.request().postDataJSON();
     const entrant = ENTRANT_PRESETS.find((e) => e.id === id)!;
-    const data = mockJevResponse(entrant);
+    const data = mockJevResponse(evidenceFor(entrant, stage ?? "inspected"));
     if (entrant.portrait === 2) {
       data.semantic_assessment.confidence = 0.4;
       data.story_coherence.value = 1.4;
@@ -158,21 +212,25 @@ test("stamps wait for Jev and an uncertain live report remains unscored", async 
     await route.fulfill({ json: { source: "live", latencyMs: 120, data } });
   });
   await page.goto("/");
+  await beginShift(page);
   const approve = page.getByRole("button", { name: /APPROVE.*Grant entry/ });
   await expect(approve).toBeDisabled();
   await page.keyboard.press("1");
   await expect(page.getByRole("button", { name: "View audit" })).toHaveCount(0);
   release();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await page.getByRole("button", { name: "Call next applicant" }).click();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DETAIN.*Call security/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await page.getByRole("button", { name: "Call next applicant" }).click();
+  await inspectLuggage(page);
   await approve.click();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Assessment unresolved.")).toBeVisible();
-  await expect(page.getByText("47/100", { exact: true })).toBeVisible();
+  await expect(page.getByText("47/100", { exact: true }).first()).toBeVisible();
   await expect(
     page.getByText("Unscored", { exact: false }).first(),
   ).toBeVisible();
@@ -207,10 +265,12 @@ test("audio starts enabled despite a saved mute and resets to enabled on reload"
       effects.push(message.text());
   });
   await page.goto("/");
+  await beginShift(page);
   await expect(
     page.getByRole("button", { name: "Mute sound" }),
   ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("tab", { name: /Luggage/ }).click();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
   await expect
     .poll(() =>
@@ -221,9 +281,11 @@ test("audio starts enabled despite a saved mute and resets to enabled on reload"
     .toBeGreaterThan(0);
   await page.getByRole("button", { name: "View audit" }).click();
   await page.getByRole("button", { name: "Call next applicant" }).click();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DETAIN.*Call security/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await page.getByRole("button", { name: "Call next applicant" }).click();
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /APPROVE.*Grant entry/ }).click();
   await page.getByRole("button", { name: "Mute sound" }).click();
   const before = await page.evaluate(
@@ -236,9 +298,11 @@ test("audio starts enabled despite a saved mute and resets to enabled on reload"
     ),
   ).toBe(before);
   await page.reload();
+  await beginShift(page);
   await expect(
     page.getByRole("button", { name: "Mute sound" }),
   ).toHaveAttribute("aria-pressed", "true");
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
   await expect
     .poll(() =>
@@ -263,8 +327,158 @@ test("unsupported audio never prevents a verdict", async ({ page }) => {
     });
   });
   await page.goto("/");
+  await beginShift(page);
+  await inspectLuggage(page);
   await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Protocol upheld.")).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("briefing blocks gameplay, flips and zooms before starting the shift", async ({
+  page,
+}) => {
+  let requests = 0;
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/judgment")) requests++;
+  });
+  await page.goto("/");
+  const dialog = page.getByRole("dialog", { name: "Shift briefing" });
+  await expect(dialog).toBeVisible();
+  await expect(page.locator(".game-stage")).toHaveAttribute("inert", "");
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("1");
+  await expect(dialog).toBeVisible();
+  expect(requests).toBe(0);
+  await page.screenshot({
+    path: "test-results/briefing-sealed.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Open your briefing card" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your desk. Their fate." }),
+  ).toBeVisible();
+  await expect(page.locator(".briefing-flipper")).toHaveCSS(
+    "transform",
+    /matrix3d/,
+  );
+  await expect(
+    page.getByRole("button", { name: "Close briefing & begin shift" }),
+  ).toBeFocused();
+  await page.screenshot({
+    path: "test-results/briefing-open.png",
+    fullPage: true,
+    animations: "disabled",
+  });
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await inspectLuggage(page);
+  await expect(
+    page.getByRole("button", { name: /DENY.*Refuse entry/ }),
+  ).toBeEnabled();
+  expect(requests).toBeGreaterThan(0);
+});
+
+test("briefing is readable on a narrow screen with reduced motion", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open your briefing card" }).click();
+  await expect(
+    page.getByRole("button", { name: "Close briefing & begin shift" }),
+  ).toBeVisible();
+  expect(
+    await page
+      .locator(".briefing-dialog")
+      .evaluate((el) => el.scrollWidth <= el.clientWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: "test-results/briefing-mobile.png",
+    fullPage: true,
+  });
+  await page
+    .getByRole("button", { name: "Close briefing & begin shift" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Jorji Costava" }),
+  ).toBeVisible();
+});
+
+test("opening Boris luggage reveals contraband and preserves both Jev reports", async ({
+  page,
+}) => {
+  const stages: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.url().endsWith("/api/judgment") &&
+      request.postDataJSON().entrantId === ENTRANT_PRESETS[1].id
+    )
+      stages.push(request.postDataJSON().stage);
+  });
+  await page.goto("/");
+  await beginShift(page);
+  await inspectLuggage(page);
+  await page.getByRole("button", { name: /DENY.*Refuse entry/ }).click();
+  await page.getByRole("button", { name: "View audit" }).click();
+  await page.getByRole("button", { name: "Call next applicant" }).click();
+  await page.getByRole("tab", { name: /Luggage/ }).click();
+  await expect(
+    page.getByText("Watch parts and repair tools", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Heavy brass explosive casings", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: /DETAIN.*Call security/ }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Open luggage", exact: true }).click();
+  const readout = page.getByRole("region", { name: "Jev evidence assessment" });
+  await expect(readout.getByText("3%", { exact: true })).toBeVisible();
+  await expect(readout.getByText("94%", { exact: true })).toBeVisible();
+  await expect(readout.getByText("Unverified", { exact: true })).toBeVisible();
+  await expect(readout.getByText("Contradicted", { exact: true })).toBeVisible();
+  await expect(readout.getByText("Security concern", { exact: true })).toBeVisible();
+  await expect(readout.getByText("Assessment confidence: 89%", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Heavy brass explosive casings", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("tab", { name: /Interview/ }).click();
+  await page.getByRole("tab", { name: /Luggage/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Open luggage", exact: true }),
+  ).toHaveCount(0);
+  expect(stages).toEqual(["declared", "inspected"]);
+  await page.screenshot({
+    path: "test-results/jev-discovery.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: /DETAIN.*Call security/ }).click();
+  await page.getByRole("button", { name: "View audit" }).click();
+  const audit = page.getByRole("dialog");
+  await expect(
+    audit.getByText("Before inspection", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    audit.getByText("After inspection", { exact: false }),
+  ).toBeVisible();
+});
+
+test("checkpoint sprite animates while passport stays static and respects reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await beginShift(page);
+  const sprite = page.locator(".window-portrait .portrait-idle");
+  await expect(sprite).toBeVisible();
+  await expect(sprite).toHaveCSS("background-size", "600% 300%");
+  await expect(sprite).toHaveCSS("animation-name", "traveler-idle");
+  await expect(page.locator(".passport .portrait")).not.toHaveClass(/portrait-idle/);
+  await sprite.evaluate(el => { const animation = el.getAnimations()[0]; animation.pause(); animation.currentTime = 4500; });
+  await expect(sprite).toHaveCSS("background-position-x", "40%");
+  await page.screenshot({ path: "test-results/sprite-blink.png", fullPage: true });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(sprite).toHaveCSS("animation-name", "none");
+  await expect(sprite).toHaveCSS("background-position-x", "0%");
+  await page.screenshot({ path: "test-results/sprite-neutral.png", fullPage: true });
 });

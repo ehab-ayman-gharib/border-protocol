@@ -3,6 +3,7 @@ import { ENTRANT_PRESETS } from "@/fixtures/presets";
 import { evaluateWithJev, gatewayConfig } from "@/lib/jevGateway";
 import type { Judgment } from "@/types/jev";
 import { debugLog } from "@/lib/debug";
+import { evidenceFor } from "@/lib/evidence";
 const cache = new Map<string, { judgment: Judgment; expires: number }>();
 const pending = new Map<string, Promise<Judgment>>();
 export async function POST(request: Request) {
@@ -23,7 +24,20 @@ export async function POST(request: Request) {
     debugLog("API", "Rejected unknown entrant", { status: 400 }, "warn");
     return NextResponse.json({ error: "Unknown entrant" }, { status: 400 });
   }
-  const existing = cache.get(entrant.id);
+  const stage =
+    body && typeof body === "object" && "stage" in body
+      ? body.stage
+      : "inspected";
+  if (stage !== "declared" && stage !== "inspected")
+    return NextResponse.json(
+      { error: "Invalid evidence stage" },
+      { status: 400 },
+    );
+  const key = `evidence-v2:${entrant.id}:${stage}`;
+  // Discard expired reports before looking up this fixed case.
+  for (const [key, entry] of cache)
+    if (entry.expires <= Date.now()) cache.delete(key);
+  const existing = cache.get(key);
   if (existing && existing.expires > Date.now()) {
     debugLog(
       "API",
@@ -37,20 +51,24 @@ export async function POST(request: Request) {
     );
     return NextResponse.json(existing.judgment);
   }
-  let evaluation = pending.get(entrant.id);
+  let evaluation = pending.get(key);
   if (!evaluation) {
     debugLog("API", "Cache miss; starting evaluation", {
       entrantId: entrant.id,
     });
-    evaluation = evaluateWithJev(entrant, gatewayConfig(process.env));
-    pending.set(entrant.id, evaluation);
+    evaluation = evaluateWithJev(
+      evidenceFor(entrant, stage),
+      gatewayConfig(process.env),
+    );
+    pending.set(key, evaluation);
   } else
     debugLog("API", "Joining an in-flight evaluation", {
       entrantId: entrant.id,
     });
   const judgment = await evaluation;
-  pending.delete(entrant.id);
-  cache.set(entrant.id, {
+  pending.delete(key);
+  if (cache.size >= 256) cache.delete(cache.keys().next().value!);
+  cache.set(key, {
     judgment,
     expires: Date.now() + (judgment.reason === "unavailable" ? 15000 : 300000),
   });
