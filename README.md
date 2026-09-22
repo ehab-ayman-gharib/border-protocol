@@ -126,3 +126,5 @@ Import the GitHub repository with the project root set to `./`. The repository p
 The previous deployment error came from writing production builds to `.next-production` while Vercel expected `.next`. Production builds now consistently write `.next`; no manual output-directory workaround is needed.
 
 Mobile audio unlocks on tap release (`pointerup`/`touchend`) as well as click and keyboard gestures. It primes the output within that gesture and resumes suspended or interrupted contexts. Where supported, Safari's Audio Session API is set to playback. Device media volume and browser audio settings still apply. Automated touch tests verify activation and suspension recovery; physical-device speaker output must be checked on the target phone.
+
+On phones, the title bar is replaced by a compact shift strip with a Game menu for sound and the log. A highlighted suitcase beside the traveler opens the inspection directly. Stamps sit immediately below the scene and stay at the top when scrolling. Documents, Interview, Luggage and Jev report tabs show one panel at a time; switching panels does not repeat the inspection or discard its reports.

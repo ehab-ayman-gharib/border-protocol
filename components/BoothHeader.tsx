@@ -4,9 +4,15 @@ import { Portrait } from "./Portrait";
 export function BoothHeader({
   entrant,
   index,
+  inspected,
+  bagReady,
+  onBag,
 }: {
   entrant: EntrantApplicant;
   index: number;
+  inspected: boolean;
+  bagReady: boolean;
+  onBag: () => void;
 }) {
   return (
     <section className="booth" aria-label="Checkpoint window">
@@ -37,6 +43,26 @@ export function BoothHeader({
         <Clock3 size={13} /> 08:{String(index * 12).padStart(2, "0")}{" "}
         <span>12°C / OVERCAST</span>
       </div>
+      <button
+        className={`scene-bag ${inspected ? "is-open" : "is-sealed"}`}
+        aria-label={inspected ? "View luggage findings" : "Open luggage"}
+        disabled={!bagReady && !inspected}
+        onClick={onBag}
+      >
+        <span className="bag-art" aria-hidden="true">
+          <span className="bag-handle" />
+          <span className="bag-lid" />
+          <span className="bag-lock" />
+        </span>
+        <strong>{inspected ? "Bag searched" : "Open luggage"}</strong>
+        <small>
+          {inspected
+            ? "View findings"
+            : bagReady
+              ? "Tap to inspect"
+              : "Receiving declaration…"}
+        </small>
+      </button>
     </section>
   );
 }

@@ -1414,3 +1414,62 @@ blockquote {
   .booth-location { font-size: 7px; top: 12px; left: 14px; }
   .booth-time { bottom: 12px; }
 }
+/* Mobile inspection station: scene, stamps, then one evidence panel. */
+.scene-bag, .mobile-game-menu, .mobile-evidence-tabs { display: none; }
+@media (max-width: 600px) {
+  .game-stage { display: flex; flex-direction: column; }
+  .topbar { display: none; }
+  .shiftbar { order: 0; min-height: 38px; padding: 0 48px 0 12px; position: relative; }
+  .shift-date { font-size: 8px; letter-spacing: 0; }
+  .shift-stats b { font-size: 14px; }
+  .mobile-game-menu { display: block; position: absolute; right: 6px; top: 0; z-index: 20; }
+  .mobile-game-menu summary { list-style: none; padding: 10px; cursor: pointer; }
+  .mobile-game-menu summary::-webkit-details-marker { display: none; }
+  .mobile-game-menu nav { position: absolute; right: 0; top: 36px; width: 150px; padding: 8px; background: #202830; box-shadow: 0 8px 24px #000a; border: 1px solid #676354; }
+  .mobile-game-menu button { display: block; width: 100%; min-height: 44px; text-align: left; padding: 8px; }
+  .booth { order: 1; height: clamp(210px, 32svh, 260px); flex-shrink: 0; border-bottom-width: 5px; }
+  .window-portrait { left: 28%; height: 260px; width: 174px; bottom: -15px; }
+  .window-speech { top: 32px; right: 12px; width: 44%; }
+  .window-speech p { font-size: 20px; margin-top: 8px; }
+  .window-speech > span { font-size: 9px; }
+  .booth-location, .booth-time { display: none; }
+  .scene-bag { display: flex; flex-direction: column; align-items: center; position: absolute; z-index: 5; bottom: 10px; right: 17px; width: 140px; padding: 12px 8px 6px; background: transparent; border: 0; cursor: pointer; color: #f1d19a; }
+  .scene-bag strong { font-size: 12px; margin-top: 8px; }
+  .scene-bag small { font-size: 9px; color: #d0c7b4; margin-top: 4px; }
+  .bag-art { position: relative; display: block; width: 102px; height: 61px; border: 2px solid #c59b65; border-radius: 8px; background: linear-gradient(90deg, #624833 16%, #b09162 17% 22%, #624833 23% 77%, #b09162 78% 83%, #624833 84%); box-shadow: 0 9px 15px #0009, inset 0 0 0 3px #392c21; }
+  .bag-handle { position: absolute; width: 30px; height: 12px; top: -12px; left: 34px; border: 3px solid #bb9666; border-bottom: 0; border-radius: 6px 6px 0 0; }
+  .bag-lid { position: absolute; inset: 0 0 auto; height: 19px; border-bottom: 2px solid #35281a; background: #765637; border-radius: 5px 5px 0 0; transform-origin: top; transition: transform .25s; }
+  .bag-lock { position: absolute; top: 15px; left: 44px; width: 12px; height: 14px; background: #d5b66d; border: 2px solid #745a29; border-radius: 2px; }
+  .scene-bag.is-sealed:not(:disabled) .bag-art { animation: bag-highlight 1.8s ease-in-out infinite; }
+  .scene-bag.is-open .bag-lid { transform: translateY(-12px) rotateX(35deg); }
+  .scene-bag:focus-visible { outline: 2px solid #e1b77b; outline-offset: 2px; }
+  .decision-bar { order: 2; position: sticky; top: 0; z-index: 10; padding: 8px 10px; background: #171d23f5; flex-direction: column; gap: 4px; }
+  .decision-caption { display: block; width: 100%; }
+  .decision-caption .eyebrow { display: none; }
+  .decision-caption p { margin: 0 0 3px; text-align: center; font-size: 10px; }
+  .stamp-actions { gap: 7px; }
+  .stamp-button { min-width: 0; min-height: 47px; padding: 8px 6px; font-size: 10px; }
+  .stamp-button svg { width: 15px; }
+  .stamp-button small { font-size: 8px; }
+  .workspace { order: 3; display: flex; flex-direction: column; min-height: 0; }
+  .mobile-evidence-tabs { display: flex; padding: 0 8px; background: #222a31; border-bottom: 1px solid #4c504d; }
+  .mobile-evidence-tabs button { flex: 1; min-height: 44px; padding: 9px 4px; font-size: 11px; border-bottom: 2px solid transparent; }
+  .mobile-evidence-tabs button[aria-selected=true] { color: #f1cd8e; border-bottom-color: #ddb675; }
+  .workspace:not([data-mobile-view=documents]) .desk-area { display: none; }
+  .workspace[data-mobile-view=documents] .inspector-panel { display: none; }
+  .workspace .inspector-panel { margin: 0; border: 0; border-radius: 0; }
+  .workspace .applicant-heading { padding: 12px 18px 0; }
+  .workspace .applicant-heading h1 { font-size: 22px; }
+  .workspace .dossier-tabs { display: none; }
+  .workspace .dossier-content { padding: 16px 18px; min-height: 0; }
+  .workspace:not([data-mobile-view=report]) .inspector-panel > .evidence-readout { display: none; }
+  .workspace[data-mobile-view=report] .dossier-content { display: none; }
+  .dossier-open-bag { display: none; }
+  .desk-area .section-heading { height: 30px; }
+  .document-picker { margin: 0; padding: 6px; }
+  .desk-canvas { height: 360px; }
+  .terminal-footer { order: 4; }
+  .shift-complete { order: 1; }
+}
+@keyframes bag-highlight { 50% { box-shadow: 0 0 22px #e6b95977, inset 0 0 0 3px #392c21; } }
+@media (prefers-reduced-motion: reduce) { .scene-bag .bag-art { animation: none !important; } .bag-lid { transition: none; } }

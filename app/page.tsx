@@ -42,6 +42,7 @@ export default function Page() {
     stage: "declared" | "inspected";
     result: Judgment;
   } | null>(null);
+  const [mobileView, setMobileView] = useState("documents");
   const [openedBag, setOpenedBag] = useState<string | null>(null);
   const [beforeInspection, setBeforeInspection] = useState<Judgment | null>(
     null,
@@ -130,6 +131,17 @@ export default function Page() {
       .catch(() => {});
     return () => controller.abort();
   }, [entrant, session, briefingOpen, stage]);
+  function openLuggage() {
+    setPanel("luggage");
+    setMobileView("luggage");
+    if (inspected || !judgment || game.verdict) return;
+    setBeforeInspection(structuredClone(judgment));
+    setOpenedBag(`${session}:${entrant.id}`);
+    playSound("paper");
+    debugLog("JEV", "Luggage opened; new evidence submitted", {
+      entrantId: entrant.id,
+    });
+  }
   function stamp(verdict: Verdict) {
     if (
       briefingOpen ||
@@ -195,6 +207,7 @@ export default function Page() {
     setPanel("interview");
     setBeforeInspection(null);
     setOpenedBag(null);
+    setMobileView("documents");
   };
   const restart = () => {
     playSound("radio");
@@ -206,6 +219,7 @@ export default function Page() {
     setPanel("interview");
     setBeforeInspection(null);
     setOpenedBag(null);
+    setMobileView("documents");
   };
   const correct = game.decisions.filter((d) => d.correct === true).length;
   const citations = game.decisions.filter((d) => d.correct === false).length;
@@ -247,6 +261,19 @@ export default function Page() {
           </nav>
         </header>
         <div className="shiftbar">
+          <details className="mobile-game-menu">
+            <summary aria-label="Game menu">Menu</summary>
+            <nav>
+              <button onClick={() => setModal("log")}>Shift log</button>
+              <button
+                aria-label={sound ? "Mute sound" : "Enable sound"}
+                aria-pressed={sound}
+                onClick={toggleSound}
+              >
+                {sound ? "Mute sound" : "Enable sound"}
+              </button>
+            </nav>
+          </details>
           <div>
             <span className="eyebrow">DUTY SHIFT</span>
             <strong>01</strong>
@@ -344,8 +371,42 @@ export default function Page() {
           </section>
         ) : (
           <>
-            <BoothHeader entrant={entrant} index={game.index} />
-            <div className="workspace">
+            <BoothHeader
+              entrant={entrant}
+              index={game.index}
+              inspected={inspected}
+              bagReady={!!judgment && !game.verdict}
+              onBag={openLuggage}
+            />
+            <div className="workspace" data-mobile-view={mobileView}>
+              <nav
+                className="mobile-evidence-tabs"
+                role="tablist"
+                aria-label="Inspection views"
+              >
+                {(
+                  [
+                    ["documents", "Documents"],
+                    ["interview", "Interview"],
+                    ["luggage", "Luggage"],
+                    ["report", "Jev report"],
+                  ] as const
+                ).map(([view, label]) => (
+                  <button
+                    key={view}
+                    role="tab"
+                    aria-selected={mobileView === view}
+                    onClick={() => {
+                      setMobileView(view);
+                      if (view === "interview" || view === "luggage")
+                        setPanel(view);
+                      playSound("paper");
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
               <DeskSurface
                 onPaperSound={() => playSound("paper")}
                 key={entrant.id + session}
@@ -431,19 +492,9 @@ export default function Page() {
                     </span>
                     {!inspected && (
                       <button
-                        className="primary-button"
+                        className="primary-button dossier-open-bag"
                         disabled={!judgment || !!game.verdict}
-                        onClick={() => {
-                          if (!judgment) return;
-                          setBeforeInspection(structuredClone(judgment));
-                          setOpenedBag(`${session}:${entrant.id}`);
-                          playSound("paper");
-                          debugLog(
-                            "JEV",
-                            "Luggage opened; new evidence submitted",
-                            { entrantId: entrant.id },
-                          );
-                        }}
+                        onClick={openLuggage}
                       >
                         Open luggage
                       </button>
@@ -569,11 +620,14 @@ export default function Page() {
           onBegin={() => {
             setBriefingOpen(false);
             playSound("radio");
-            requestAnimationFrame(() =>
-              document
-                .querySelector<HTMLElement>(".applicant-heading h1")
-                ?.focus(),
-            );
+            requestAnimationFrame(() => {
+              const target = [
+                ...document.querySelectorAll<HTMLElement>(
+                  ".mobile-evidence-tabs button, .applicant-heading h1",
+                ),
+              ].find((node) => node.getClientRects().length > 0);
+              target?.focus();
+            });
           }}
         />
       )}

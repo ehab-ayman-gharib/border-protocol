@@ -133,8 +133,9 @@ export function BriefingCard({
                   <div>
                     <strong>Open the luggage.</strong>
                     <p>
-                      Select the <b>Luggage</b> tab, then tap <b>Open luggage</b>.
-                      Wait for Jev’s new assessment to unlock the stamps.
+                      Tap the glowing bag beside the traveler on mobile, or
+                      select <b>Luggage</b> then <b>Open luggage</b>. Wait for
+                      Jev’s new assessment to unlock the stamps.
                     </p>
                   </div>
                 </li>

@@ -70,7 +70,9 @@ test("complete a perfect shift, inspect audits, then restart", async ({
   ).toBeVisible();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Protocol upheld.")).toBeVisible();
-  await expect(page.getByText("No concern", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText("No concern", { exact: true }).first(),
+  ).toBeVisible();
   await expect(page.getByText("Semantic recommendation")).toHaveCount(0);
   await page.screenshot({
     path: "test-results/combined-audit.png",
@@ -114,49 +116,58 @@ test("complete a perfect shift, inspect audits, then restart", async ({
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
-test("mobile layout, incorrect verdict, dialog keyboard guard and log", async ({
+test("mobile station keeps the bag, stamps and evidence tabs near the traveler", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await beginShift(page);
-  await expect(
-    page.getByRole("heading", { name: "Jorji Costava" }),
-  ).toBeVisible();
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  await expect(page.locator(".topbar")).toBeHidden();
+  const bag = page.getByRole("button", { name: "Open luggage", exact: true });
+  await expect(bag).toBeVisible();
+  const stamps = page.locator(".decision-bar");
+  const box = await stamps.boundingBox();
+  expect(box!.y + box!.height).toBeLessThan(450);
   await expect(
     page.getByRole("article", { name: "Passport", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Entry permit", exact: true }).click();
   await expect(
     page.getByRole("article", { name: "Entry permit", exact: true }),
-  ).toHaveCSS("opacity", "1");
-  await expect(
-    page.getByRole("article", { name: "Entry permit", exact: true }),
   ).toBeVisible();
+  await page.getByRole("tab", { name: "Interview", exact: true }).click();
+  await expect(page.getByRole("tabpanel", { name: "Interview" })).toBeVisible();
+  await expect(page.locator(".desk-area")).toBeHidden();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({
+    path: "test-results/mobile-station.png",
+    fullPage: true,
+  });
+  await bag.click();
   await expect(
-    page.getByRole("article", { name: "Passport", exact: true }),
-  ).toBeHidden();
-  await page.getByRole("button", { name: "Passport", exact: true }).click();
-  await page.screenshot({ path: "test-results/mobile.png", fullPage: true });
-  await page.getByRole("button", { name: "Shift log" }).click();
-  await page.keyboard.press("1");
-  await page.getByRole("button", { name: "Close dialog" }).click();
+    page.getByRole("tab", { name: "Luggage", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
   await expect(
-    page.getByRole("button", { name: /APPROVE.*Grant entry/ }),
+    page.getByText("Half-eaten sausage", { exact: true }),
   ).toBeVisible();
-  await inspectLuggage(page);
+  await page.getByRole("tab", { name: "Jev report", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "Jev evidence assessment" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: /APPROVE.*Grant entry/ }).click();
   await page.getByRole("button", { name: "View audit" }).click();
   await expect(page.getByText("Citation issued.")).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Shift log" }).click();
+  await page.getByLabel("Game menu", { exact: true }).click();
+  await page.getByRole("button", { name: "Shift log", exact: true }).click();
   await expect(page.getByText("15 CR", { exact: true })).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
 });
+
 test("API rejects unknown entrants and provides valid typed assessments", async ({
   request,
 }) => {
@@ -401,9 +412,7 @@ test("briefing is readable on a narrow screen with reduced motion", async ({
   await page
     .getByRole("button", { name: "Close briefing & begin shift" })
     .click();
-  await expect(
-    page.getByRole("heading", { name: "Jorji Costava" }),
-  ).toBeVisible();
+  await expect(page.locator(".window-portrait")).toBeVisible();
 });
 
 test("opening Boris luggage reveals contraband and preserves both Jev reports", async ({
@@ -438,9 +447,15 @@ test("opening Boris luggage reveals contraband and preserves both Jev reports", 
   await expect(readout.getByText("3%", { exact: true })).toBeVisible();
   await expect(readout.getByText("94%", { exact: true })).toBeVisible();
   await expect(readout.getByText("Unverified", { exact: true })).toBeVisible();
-  await expect(readout.getByText("Contradicted", { exact: true })).toBeVisible();
-  await expect(readout.getByText("Security concern", { exact: true })).toBeVisible();
-  await expect(readout.getByText("Assessment confidence: 89%", { exact: true })).toBeVisible();
+  await expect(
+    readout.getByText("Contradicted", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    readout.getByText("Security concern", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    readout.getByText("Assessment confidence: 89%", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByText("Heavy brass explosive casings", { exact: true }),
   ).toBeVisible();
@@ -465,7 +480,9 @@ test("opening Boris luggage reveals contraband and preserves both Jev reports", 
   ).toBeVisible();
 });
 
-test("checkpoint sprite animates while passport stays static and respects reduced motion", async ({ page }) => {
+test("checkpoint sprite animates while passport stays static and respects reduced motion", async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   await beginShift(page);
@@ -473,18 +490,34 @@ test("checkpoint sprite animates while passport stays static and respects reduce
   await expect(sprite).toBeVisible();
   await expect(sprite).toHaveCSS("background-size", "600% 300%");
   await expect(sprite).toHaveCSS("animation-name", "traveler-idle");
-  await expect(page.locator(".passport .portrait")).not.toHaveClass(/portrait-idle/);
-  await sprite.evaluate(el => { const animation = el.getAnimations()[0]; animation.pause(); animation.currentTime = 4500; });
+  await expect(page.locator(".passport .portrait")).not.toHaveClass(
+    /portrait-idle/,
+  );
+  await sprite.evaluate((el) => {
+    const animation = el.getAnimations()[0];
+    animation.pause();
+    animation.currentTime = 4500;
+  });
   await expect(sprite).toHaveCSS("background-position-x", "40%");
-  await page.screenshot({ path: "test-results/sprite-blink.png", fullPage: true });
+  await page.screenshot({
+    path: "test-results/sprite-blink.png",
+    fullPage: true,
+  });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(sprite).toHaveCSS("animation-name", "none");
   await expect(sprite).toHaveCSS("background-position-x", "0%");
-  await page.screenshot({ path: "test-results/sprite-neutral.png", fullPage: true });
+  await page.screenshot({
+    path: "test-results/sprite-neutral.png",
+    fullPage: true,
+  });
 });
 
 test.describe("mobile audio gestures", () => {
-  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test.use({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 390, height: 844 },
+  });
   test("taps start audio and recover a suspended output", async ({ page }) => {
     await page.addInitScript(() => {
       const Audio = window.AudioContext;
@@ -499,14 +532,31 @@ test.describe("mobile audio gestures", () => {
     });
     await page.goto("/");
     await page.getByRole("button", { name: "Open your briefing card" }).tap();
-    await page.getByRole("button", { name: "Close briefing & begin shift" }).tap();
-    await expect.poll(() => page.evaluate(() => (window as any).audioContexts.at(-1)?.state)).toBe("running");
-    await page.evaluate(async () => { await (window as any).audioContexts.at(-1).suspend(); });
+    await page
+      .getByRole("button", { name: "Close briefing & begin shift" })
+      .tap();
+    await expect
+      .poll(() =>
+        page.evaluate(() => (window as any).audioContexts.at(-1)?.state),
+      )
+      .toBe("running");
+    await page.evaluate(async () => {
+      await (window as any).audioContexts.at(-1).suspend();
+    });
     await page.getByRole("tab", { name: /Luggage/ }).tap();
-    await expect.poll(() => page.evaluate(() => (window as any).audioContexts.at(-1)?.state)).toBe("running");
+    await expect
+      .poll(() =>
+        page.evaluate(() => (window as any).audioContexts.at(-1)?.state),
+      )
+      .toBe("running");
+    await page.getByLabel("Game menu", { exact: true }).tap();
     await page.getByRole("button", { name: "Mute sound" }).tap();
-    await expect(page.getByRole("button", { name: "Enable sound" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Enable sound" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Enable sound" }).tap();
-    await expect(page.getByRole("button", { name: "Mute sound" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Mute sound" }),
+    ).toBeVisible();
   });
 });
