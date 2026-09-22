@@ -116,6 +116,7 @@ test("complete a perfect shift, inspect audits, then restart", async ({
   });
   await page.getByRole("button", { name: "Start a new shift" }).click();
   await beginShift(page);
+  await expect(page.locator(".tap-guide")).toContainText("Check both papers");
   await expect(
     page.getByRole("heading", { name: "Jorji Costava" }),
   ).toBeVisible();
@@ -566,8 +567,9 @@ test.describe("mobile audio gestures", () => {
   });
 });
 
-test("first-time mobile tap guide advances with actions and stays dismissed on reload", async ({ page }) => {
+test("mobile tap guide restarts after each briefing regardless of saved completion", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.setItem("border-protocol-tap-guide-v1", "done"));
   await page.goto("/");
   await expect(page.locator(".tap-guide")).toHaveCount(0);
   await beginShift(page);
@@ -578,7 +580,12 @@ test("first-time mobile tap guide advances with actions and stays dismissed on r
   await page.getByRole("button", { name: "Open luggage", exact: true }).click();
   await expect(page.locator(".tap-guide")).toHaveCount(0);
   await page.reload();
-  await beginShift(page);
   await expect(page.locator(".tap-guide")).toHaveCount(0);
-  expect(await page.evaluate(() => localStorage.getItem("border-protocol-tap-guide-v1"))).toBe("done");
+  await beginShift(page);
+  await expect(page.locator(".tap-guide")).toContainText("Check both papers");
+  await page.getByRole("button", { name: "Skip tips" }).click();
+  await expect(page.locator(".tap-guide")).toHaveCount(0);
+  await page.reload();
+  await beginShift(page);
+  await expect(page.locator(".tap-guide")).toContainText("Check both papers");
 });

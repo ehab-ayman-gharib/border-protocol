@@ -2,7 +2,7 @@
 /**
  * @file Main game screen and interaction coordinator.
  * Connects the shift reducer, staged Jev requests, evidence panels, stamps, audio,
- * briefing and first-time hints. Verdict policy belongs to lib/resolution.ts.
+ * briefing and start-of-shift hints. Verdict policy belongs to lib/resolution.ts.
  */
 import { useEffect, useMemo, useReducer, useState } from "react";
 import {
@@ -53,9 +53,6 @@ export default function Page() {
   );
   function finishTutorial() {
     setTutorial(null);
-    try {
-      localStorage.setItem("border-protocol-tap-guide-v1", "done");
-    } catch {}
   }
   const [mobileView, setMobileView] = useState("documents");
   const [openedBag, setOpenedBag] = useState<string | null>(null);
@@ -646,12 +643,7 @@ export default function Page() {
           onFlip={() => playSound("paper")}
           onBegin={() => {
             setBriefingOpen(false);
-            try {
-              if (!localStorage.getItem("border-protocol-tap-guide-v1"))
-                setTutorial("documents");
-            } catch {
-              setTutorial("documents");
-            }
+            setTutorial("documents");
             playSound("radio");
             requestAnimationFrame(() => {
               const target = [

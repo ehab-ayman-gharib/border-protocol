@@ -129,4 +129,4 @@ Mobile audio unlocks on tap release (`pointerup`/`touchend`) as well as click an
 
 On phones, the title bar is replaced by a compact shift strip with a Game menu for sound and the log. A highlighted suitcase beside the traveler opens the inspection directly. Stamps sit immediately below the scene and stay at the top when scrolling. Documents, Interview, Luggage and Jev report tabs show one panel at a time; switching panels does not repeat the inspection or discard its reports.
 
-First-time tap tips appear after the briefing: switch to Entry permit, then open the luggage. Each tip advances on the real action; Skip tips dismisses the sequence. Completion is remembered in local browser storage. Tips do not block input and their hand animation respects reduced motion.
+Tap tips appear every time the briefing closes to begin a shift: switch to Entry permit, then open the luggage. Each tip advances on the real action; Skip tips dismisses the sequence. Completion or skipping dismisses tips only for the current shift; reloading or starting a new shift shows them again after the briefing. Tips do not block input and their hand animation respects reduced motion.
