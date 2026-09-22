@@ -10,6 +10,7 @@ export class GameAudio {
   private enabled = true;
   private disposed = false;
   private generation = 0;
+  private needsPrime = true;
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
@@ -24,13 +25,39 @@ export class GameAudio {
   async unlock() {
     if (!this.enabled || this.disposed) return false;
     try {
-      if (!this.context) {
-        this.context = new AudioContext();
+      if (!this.context || this.context.state === "closed") {
+        // Safari's playback session supports media output rather than the
+        // default ambient route, which can follow the phone's silent switch.
+        try {
+          const session = (navigator as Navigator & {
+            audioSession?: { type: string };
+          }).audioSession;
+          if (session) session.type = "playback";
+        } catch { /* Optional API; Web Audio still works without it. */ }
+        const Audio = window.AudioContext ?? (window as Window & {
+          webkitAudioContext?: typeof AudioContext;
+        }).webkitAudioContext;
+        if (!Audio) return false;
+        this.context = new Audio({ latencyHint: "interactive" });
+        this.needsPrime = true;
         this.master = this.context.createGain();
         this.master.gain.value = 0.55;
         this.master.connect(this.context.destination);
       }
-      if (this.context.state === "suspended") await this.context.resume();
+      const context = this.context;
+      // iOS can enter "interrupted" after a call, lock screen or tab switch.
+      // Resume AND start a silent buffer synchronously inside the gesture,
+      // before awaiting anything, to prime mobile audio output.
+      if (this.needsPrime || context.state !== "running") {
+        const resumed = context.state !== "running" ? context.resume() : Promise.resolve();
+        const primer = context.createBufferSource();
+        primer.buffer = context.createBuffer(1, 1, context.sampleRate);
+        primer.connect(context.destination);
+        primer.onended = () => primer.disconnect();
+        primer.start(0);
+        this.needsPrime = false;
+        await resumed;
+      }
       return this.context.state === "running" && this.enabled && !this.disposed;
     } catch {
       debugLog(

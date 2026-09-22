@@ -482,3 +482,31 @@ test("checkpoint sprite animates while passport stays static and respects reduce
   await expect(sprite).toHaveCSS("background-position-x", "0%");
   await page.screenshot({ path: "test-results/sprite-neutral.png", fullPage: true });
 });
+
+test.describe("mobile audio gestures", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test("taps start audio and recover a suspended output", async ({ page }) => {
+    await page.addInitScript(() => {
+      const Audio = window.AudioContext;
+      (window as any).audioContexts = [];
+      window.AudioContext = new Proxy(Audio, {
+        construct(target, args) {
+          const context = new target(...args);
+          (window as any).audioContexts.push(context);
+          return context;
+        },
+      });
+    });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Open your briefing card" }).tap();
+    await page.getByRole("button", { name: "Close briefing & begin shift" }).tap();
+    await expect.poll(() => page.evaluate(() => (window as any).audioContexts.at(-1)?.state)).toBe("running");
+    await page.evaluate(async () => { await (window as any).audioContexts.at(-1).suspend(); });
+    await page.getByRole("tab", { name: /Luggage/ }).tap();
+    await expect.poll(() => page.evaluate(() => (window as any).audioContexts.at(-1)?.state)).toBe("running");
+    await page.getByRole("button", { name: "Mute sound" }).tap();
+    await expect(page.getByRole("button", { name: "Enable sound" })).toBeVisible();
+    await page.getByRole("button", { name: "Enable sound" }).tap();
+    await expect(page.getByRole("button", { name: "Mute sound" })).toBeVisible();
+  });
+});

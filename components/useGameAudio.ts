@@ -13,11 +13,13 @@ export function useGameAudio() {
     const unlock = () => {
       void audio.unlock();
     };
-    window.addEventListener("pointerdown", unlock, { capture: true });
-    window.addEventListener("keydown", unlock, { capture: true });
+    // Touch activation occurs at release, not at pointerdown on mobile.
+    const gestures = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+    for (const event of gestures)
+      window.addEventListener(event, unlock, { capture: true, passive: true });
     return () => {
-      window.removeEventListener("pointerdown", unlock, { capture: true });
-      window.removeEventListener("keydown", unlock, { capture: true });
+      for (const event of gestures)
+        window.removeEventListener(event, unlock, { capture: true });
       audio.dispose();
       engine.current = null;
     };
