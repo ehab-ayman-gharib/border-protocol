@@ -1,3 +1,8 @@
+/**
+ * @file Single policy for combining document checks with semantic assessment signals.
+ * Returns ADMIT, DENY, DETAIN or an inconclusive ruling with an explanation and
+ * display coherence score. Does not call APIs, mutate credits or force AI outputs.
+ */
 import type { Verdict } from "@/types/border";
 import type { Judgment } from "@/types/jev";
 import type { CodeEvaluation } from "./deterministic";

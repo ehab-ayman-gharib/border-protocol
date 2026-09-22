@@ -1,3 +1,8 @@
+/**
+ * @file Canonical ministry seal artwork and SHA-256 integrity helpers.
+ * Exports the official SVG and its expected digest for fixtures and deterministic
+ * document validation in both browser and server environments.
+ */
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
 export const ARSTOVIA_VALID_SEAL_SVG =

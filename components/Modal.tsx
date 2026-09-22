@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Shared native dialog shell for audits and the shift log.
+ * Handles modal opening, close controls, Escape and backdrop clicks; callers own
+ * the content and the state determining whether the dialog is rendered.
+ */
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 export function Modal({

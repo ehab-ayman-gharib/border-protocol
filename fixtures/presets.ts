@@ -1,3 +1,8 @@
+/**
+ * @file Static source of truth for the three showcase travelers and checkpoint date.
+ * Contains identities, documents and actual luggage findings. Declarations before
+ * inspection are selected by lib/evidence.ts; outcomes are resolved at runtime.
+ */
 import type { EntrantApplicant } from "@/types/border";
 import { ARSTOVIA_VALID_SEAL_SVG, OFFICIAL_SEAL_HASH } from "@/lib/seal";
 export { ARSTOVIA_VALID_SEAL_SVG, OFFICIAL_SEAL_HASH };

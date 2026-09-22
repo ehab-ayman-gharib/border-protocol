@@ -1,4 +1,9 @@
-﻿import { test } from "node:test";
+﻿/**
+ * @file Audio-engine regression test using a controlled fake browser audio context.
+ * Verifies synchronous mobile priming, interrupted-state recovery and mute guards.
+ * Does not test audible output on physical speakers.
+ */
+import { test } from "node:test";
 import assert from "node:assert/strict";
 import { GameAudio } from "../lib/sound";
 

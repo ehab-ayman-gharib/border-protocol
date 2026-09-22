@@ -1,3 +1,8 @@
+/**
+ * @file Shared diagnostic logger for browser and server execution.
+ * Applies stage labels and colors, snapshots data, redacts sensitive fields and
+ * honors the development default and NEXT_PUBLIC_DEBUG_LOGS override.
+ */
 type Stage =
   | "AUDIO"
   | "SHIFT"

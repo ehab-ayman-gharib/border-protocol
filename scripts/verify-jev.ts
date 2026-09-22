@@ -1,3 +1,9 @@
+/**
+ * @file Manual live integration check, run with npm run verify:jev.
+ * Loads local environment configuration and evaluates all three original cases
+ * without route caching. Fails on fallback or a missing showcase verdict; never
+ * prints credentials. This command makes real upstream API requests.
+ */
 import { loadEnvConfig } from "@next/env";
 import { ENTRANT_PRESETS } from "../fixtures/presets";
 import { evaluateWithJev, gatewayConfig } from "../lib/jevGateway";

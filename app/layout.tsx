@@ -1,3 +1,7 @@
+/**
+ * @file Root Next.js layout: document language, page metadata and global styles.
+ * Wraps every route; gameplay state lives in app/page.tsx.
+ */
 import type { Metadata } from "next";
 import "./globals.css";
 import "./scene.css";

@@ -1,3 +1,8 @@
+/**
+ * @file Browser coverage for complete shifts, evidence discovery and responsive UI.
+ * Exercises briefing, audit, audio, animation and first-time tips. Gameplay uses
+ * mocked Jev responses; the direct API smoke check may use configured live keys.
+ */
 import { test, expect, type Page } from "@playwright/test";
 import { evidenceFor } from "../../lib/evidence";
 import { ENTRANT_PRESETS } from "../../fixtures/presets";

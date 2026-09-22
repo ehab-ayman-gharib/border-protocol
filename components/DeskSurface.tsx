@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Interactive passport and entry-permit desk.
+ * Owns paper positions, stacking order and the mobile document selector; renders
+ * provided case data and notifies the parent about sounds and document switching.
+ */
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Grip, RotateCcw, ScanLine, Shield } from "lucide-react";

@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Traveler portrait renderer shared by the checkpoint and passport documents.
+ * Loads the idle sprite atlas only when animation is requested and retains the
+ * original portrait while loading or on failure. Frame timing lives in scene.css.
+ */
 import { useEffect, useState } from "react";
 
 export function Portrait({

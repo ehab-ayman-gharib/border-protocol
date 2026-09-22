@@ -1,3 +1,8 @@
+/**
+ * @file Shared Jev payload builder, response validation and local case simulator.
+ * Also provides the browser request to our API with cancellation and stage-aware
+ * fallback. Upstream credentials live in jevGateway; scoring lives in resolution.
+ */
 import type { EntrantApplicant } from "@/types/border";
 import { COHERENCE, type JevBorderResponse, type Judgment } from "@/types/jev";
 import { debugLog } from "./debug";

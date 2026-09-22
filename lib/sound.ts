@@ -1,3 +1,8 @@
+/**
+ * @file Procedural Web Audio engine for paper, radio, stamps and outcome cues.
+ * Owns context/gain resources, mobile gesture priming, interruption recovery,
+ * mute state and disposal. React event wiring belongs to useGameAudio.ts.
+ */
 import { debugLog } from "./debug";
 
 export type SoundEffect =

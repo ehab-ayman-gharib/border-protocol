@@ -1,3 +1,8 @@
+/**
+ * @file Shared contracts for normalized Jev answers and judgment provenance.
+ * Defines the coherence rubric, semantic/declaration choices, confidence, latency
+ * and live/local metadata. Runtime response validation lives in jevClient.ts.
+ */
 export const COHERENCE = [
   "contradictory",
   "suspicious",

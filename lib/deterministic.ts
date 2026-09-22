@@ -1,3 +1,8 @@
+/**
+ * @file Pure document checks: dates, references, identity, seal integrity and duration.
+ * Returns individual results and explanatory logs. Does not call Jev, interpret
+ * cargo semantics, choose a verdict or change credits.
+ */
 import type { EntrantApplicant } from "@/types/border";
 import { CHECKPOINT_DATE } from "@/fixtures/presets";
 import { hashSeal, OFFICIAL_SEAL_HASH } from "./seal";

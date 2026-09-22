@@ -1,3 +1,8 @@
+/**
+ * @file Browser-test setup: test directory, viewport, diagnostics and local server.
+ * Runs tests serially and permits reuse of an existing development server outside
+ * CI. Individual specs configure API mocks and mobile-specific behavior.
+ */
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/e2e",

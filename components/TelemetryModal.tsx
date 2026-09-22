@@ -1,3 +1,8 @@
+/**
+ * @file Inspection audit built from the frozen decision recorded at stamp time.
+ * Presents credits, document checks, semantic findings and before/after evidence,
+ * then exposes next-applicant and close actions without recalculating the decision.
+ */
 import { ArrowRight, Check, CircleX, Cpu, ShieldAlert } from "lucide-react";
 import type { Decision } from "@/lib/game";
 import { Modal } from "./Modal";

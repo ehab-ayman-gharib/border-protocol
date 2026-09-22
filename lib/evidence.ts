@@ -1,3 +1,8 @@
+/**
+ * @file Constructs declaration-only or inspected evidence from a static traveler.
+ * Keeps undiscovered cargo out of the provisional payload, preserves the original
+ * declaration after inspection, and clones data so fixtures remain unchanged.
+ */
 import type { EntrantApplicant } from "@/types/border";
 
 export type EvidenceStage = "declared" | "inspected";

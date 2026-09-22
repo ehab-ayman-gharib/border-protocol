@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Positions the first-time tap hint beside the active document or luggage target.
+ * Tracks viewport and layout changes and provides a skip action. The parent owns
+ * step progression and persistence; CSS handles animation and reduced motion.
+ */
 import { useEffect, useState } from "react";
 import { Hand } from "lucide-react";
 

@@ -1,3 +1,8 @@
+/**
+ * @file Shift state machine and credit accounting.
+ * Guards stamp/advance/reset actions, combines code checks with the supplied Jev
+ * report, and freezes decision evidence for the audit and log. Performs no I/O.
+ */
 import { ENTRANT_PRESETS } from "@/fixtures/presets";
 import type { EntrantApplicant, Verdict } from "@/types/border";
 import type { Judgment } from "@/types/jev";

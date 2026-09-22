@@ -1,3 +1,8 @@
+/**
+ * @file Server-side Jev transport through Vercel AI Gateway or direct TypeSafe access.
+ * Selects credentials/model/endpoint, enforces a timeout, validates typed answers
+ * and returns an explicitly labeled local fallback when live evaluation fails.
+ */
 import type { EntrantApplicant } from "@/types/border";
 import type { Judgment } from "@/types/jev";
 import { debugLog } from "./debug";

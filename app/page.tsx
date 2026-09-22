@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Main game screen and interaction coordinator.
+ * Connects the shift reducer, staged Jev requests, evidence panels, stamps, audio,
+ * briefing and first-time hints. Verdict policy belongs to lib/resolution.ts.
+ */
 import { useEffect, useMemo, useReducer, useState } from "react";
 import {
   ArrowRight,

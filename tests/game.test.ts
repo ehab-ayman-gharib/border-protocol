@@ -1,3 +1,8 @@
+/**
+ * @file Unit coverage for document validation, gateway contracts and game policy.
+ * Checks seal/date boundaries, parsing, transport/fallback, scoring thresholds
+ * and frozen/stale decisions using controlled inputs rather than real API calls.
+ */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";

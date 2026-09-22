@@ -1,3 +1,8 @@
+/**
+ * @file Server endpoint for assessing a known traveler at a requested evidence stage.
+ * Builds trusted evidence from fixtures, caches each stage separately and coalesces
+ * concurrent requests. Delegates upstream authentication and fallback to jevGateway.
+ */
 import { NextResponse } from "next/server";
 import { ENTRANT_PRESETS } from "@/fixtures/presets";
 import { evaluateWithJev, gatewayConfig } from "@/lib/jevGateway";

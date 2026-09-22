@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file React lifecycle and controls for the shared GameAudio engine.
+ * Starts enabled, binds gesture-based unlocking, exposes playback/mute actions,
+ * and removes listeners and disposes audio resources when unmounted.
+ */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GameAudio, type SoundEffect } from "@/lib/sound";
 

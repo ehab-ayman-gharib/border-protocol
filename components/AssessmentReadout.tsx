@@ -1,3 +1,8 @@
+/**
+ * @file Displays current and optional before-inspection Jev reports.
+ * Shows coherence, cargo risk, declaration accuracy, findings and confidence with
+ * live/local labels. Presentation only: it does not alter scores or resolve verdicts.
+ */
 import type { Judgment } from "@/types/jev";
 
 function Report({ report, label }: { report: Judgment; label: string }) {

@@ -1,3 +1,8 @@
+/**
+ * @file Regression tests for progressive cargo discovery and decision snapshots.
+ * Verifies provisional payloads hide contraband, inspection retains declarations,
+ * and stamped evidence remains unchanged when the original reports mutate.
+ */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ENTRANT_PRESETS } from "../fixtures/presets";

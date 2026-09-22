@@ -1,3 +1,8 @@
+/**
+ * @file Renders the checkpoint scene, animated traveler and greeting.
+ * Exposes the mobile suitcase interaction through parent callbacks; it does not
+ * own inspection state or request assessments.
+ */
 import { Radio, MapPin, Clock3 } from "lucide-react";
 import type { EntrantApplicant } from "@/types/border";
 import { Portrait } from "./Portrait";

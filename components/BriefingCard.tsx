@@ -1,4 +1,9 @@
 "use client";
+/**
+ * @file Opening briefing presented as a modal card that flips to reveal instructions.
+ * Manages flip animation, focus and scroll locking, then tells the parent to start
+ * the shift. Respects reduced motion and prevents bypassing the sealed card.
+ */
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Fingerprint, Shield, X } from "lucide-react";

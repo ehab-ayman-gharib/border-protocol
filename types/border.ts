@@ -1,3 +1,8 @@
+/**
+ * @file Shared TypeScript contracts for travelers, passports, permits and verdicts.
+ * Includes evidence-stage metadata used when preparing Jev input. Defines data
+ * shapes only; validation and game rules are implemented in lib/.
+ */
 export type ArstovianNation =
   "Arstovia" | "Kolechia" | "Obristan" | "Republia" | "Antegria";
 export type Verdict = "ADMIT" | "DENY" | "DETAIN";
