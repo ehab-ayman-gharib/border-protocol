@@ -9,10 +9,12 @@ export function DeskSurface({
   entrant,
   verdict,
   onPaperSound,
+  onDocumentSwitch,
 }: {
   entrant: EntrantApplicant;
   verdict: Verdict | null;
   onPaperSound: () => void;
+  onDocumentSwitch?: () => void;
 }) {
   const bounds = useRef<HTMLDivElement>(null);
   const [front, setFront] = useState("permit");
@@ -55,6 +57,7 @@ export function DeskSurface({
           aria-pressed={mobileDocument === "permit"}
           onClick={() => {
             setMobileDocument("permit");
+            onDocumentSwitch?.();
             onPaperSound();
           }}
         >
@@ -142,6 +145,7 @@ export function DeskSurface({
           dragMomentum={false}
           onPointerDown={() => {
             setFront("permit");
+            onDocumentSwitch?.();
             onPaperSound();
           }}
           onDragStart={() =>

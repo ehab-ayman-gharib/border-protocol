@@ -1473,3 +1473,19 @@ blockquote {
 }
 @keyframes bag-highlight { 50% { box-shadow: 0 0 22px #e6b95977, inset 0 0 0 3px #392c21; } }
 @media (prefers-reduced-motion: reduce) { .scene-bag .bag-art { animation: none !important; } .bag-lid { transition: none; } }
+.tap-guide { position: fixed; z-index: 45; display: flex; gap: 10px; width: 240px; padding: 10px 12px; border: 1px solid #e1b77b; border-radius: 8px; background: #172127f5; color: #f2e3c7; box-shadow: 0 5px 22px #0008; pointer-events: none; }
+.tap-guide b { font-size: 11px; color: #f2c987; }
+.tap-guide p { font-size: 11px; line-height: 1.4; margin: 4px 0; }
+.tap-guide button { pointer-events: auto; font-size: 10px; text-decoration: underline; padding: 3px 0; color: #c9c6bf; }
+.tap-hand { flex-shrink: 0; margin-top: 6px; color: #f2c987; animation: tap-nudge 1.3s ease-in-out infinite; }
+[data-tutorial=documents] .desk-canvas .permit,
+[data-tutorial=luggage] #luggage-tab,
+[data-tutorial=luggage] .dossier-open-bag { outline: 2px solid #efc57e; outline-offset: 4px; }
+@media (max-width: 600px) {
+  [data-tutorial=documents] .desk-canvas .permit { outline: none; }
+  [data-tutorial=documents] .document-picker button:last-child,
+  [data-tutorial=luggage] .scene-bag { outline: 2px solid #efc57e; outline-offset: 3px; box-shadow: 0 0 18px #dfb96c55; }
+}
+@keyframes tap-nudge { 0%, 100% { transform: translateY(0) rotate(-12deg); } 50% { transform: translateY(-6px) rotate(-4deg) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .tap-hand { animation: none; } }
+@media (max-width: 600px) { .shiftbar { padding-right: 58px; } .mobile-game-menu summary { font-size: 10px; min-height: 38px; padding: 12px 8px; } }

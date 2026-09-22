@@ -560,3 +560,20 @@ test.describe("mobile audio gestures", () => {
     ).toBeVisible();
   });
 });
+
+test("first-time mobile tap guide advances with actions and stays dismissed on reload", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.locator(".tap-guide")).toHaveCount(0);
+  await beginShift(page);
+  await expect(page.getByText("1 / 2 · Check both papers", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Entry permit", exact: true }).click();
+  await expect(page.getByText("2 / 2 · Search the bag", { exact: true })).toBeVisible();
+  await page.screenshot({ path: "test-results/mobile-tap-guide.png", fullPage: true });
+  await page.getByRole("button", { name: "Open luggage", exact: true }).click();
+  await expect(page.locator(".tap-guide")).toHaveCount(0);
+  await page.reload();
+  await beginShift(page);
+  await expect(page.locator(".tap-guide")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("border-protocol-tap-guide-v1"))).toBe("done");
+});

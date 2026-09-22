@@ -26,6 +26,7 @@ import type { Judgment } from "@/types/jev";
 import type { Verdict } from "@/types/border";
 import { declaredCargo } from "@/lib/evidence";
 import { AssessmentReadout } from "@/components/AssessmentReadout";
+import { TapGuide } from "@/components/TapGuide";
 import { BriefingCard } from "@/components/BriefingCard";
 import { BoothHeader } from "@/components/BoothHeader";
 import { DeskSurface } from "@/components/DeskSurface";
@@ -42,6 +43,15 @@ export default function Page() {
     stage: "declared" | "inspected";
     result: Judgment;
   } | null>(null);
+  const [tutorial, setTutorial] = useState<"documents" | "luggage" | null>(
+    null,
+  );
+  function finishTutorial() {
+    setTutorial(null);
+    try {
+      localStorage.setItem("border-protocol-tap-guide-v1", "done");
+    } catch {}
+  }
   const [mobileView, setMobileView] = useState("documents");
   const [openedBag, setOpenedBag] = useState<string | null>(null);
   const [beforeInspection, setBeforeInspection] = useState<Judgment | null>(
@@ -135,6 +145,7 @@ export default function Page() {
     setPanel("luggage");
     setMobileView("luggage");
     if (inspected || !judgment || game.verdict) return;
+    if (tutorial === "luggage") finishTutorial();
     setBeforeInspection(structuredClone(judgment));
     setOpenedBag(`${session}:${entrant.id}`);
     playSound("paper");
@@ -226,7 +237,12 @@ export default function Page() {
   const unresolved = game.decisions.filter((d) => d.correct === null).length;
 
   return (
-    <main className="game-shell">
+    <main
+      className="game-shell"
+      data-tutorial={
+        !briefingOpen && !modal ? (tutorial ?? undefined) : undefined
+      }
+    >
       <div className="game-stage" inert={briefingOpen}>
         <header className="topbar">
           <a className="wordmark" href="/" aria-label="Border Protocol home">
@@ -409,6 +425,12 @@ export default function Page() {
               </nav>
               <DeskSurface
                 onPaperSound={() => playSound("paper")}
+                onDocumentSwitch={() => {
+                  if (tutorial === "documents") {
+                    if (inspected) finishTutorial();
+                    else setTutorial("luggage");
+                  }
+                }}
                 key={entrant.id + session}
                 entrant={entrant}
                 verdict={game.verdict}
@@ -619,6 +641,12 @@ export default function Page() {
           onFlip={() => playSound("paper")}
           onBegin={() => {
             setBriefingOpen(false);
+            try {
+              if (!localStorage.getItem("border-protocol-tap-guide-v1"))
+                setTutorial("documents");
+            } catch {
+              setTutorial("documents");
+            }
             playSound("radio");
             requestAnimationFrame(() => {
               const target = [
@@ -631,6 +659,18 @@ export default function Page() {
           }}
         />
       )}
+      {tutorial &&
+        !briefingOpen &&
+        !modal &&
+        !game.complete &&
+        !game.verdict && (
+          <TapGuide
+            key={`${tutorial}:${mobileView}`}
+            step={tutorial}
+            luggagePanel={panel === "luggage"}
+            onSkip={finishTutorial}
+          />
+        )}
       {modal === "log" && (
         <Modal title="Shift 01 · Inspection log" onClose={() => setModal(null)}>
           {game.decisions.length === 0 ? (
